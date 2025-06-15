@@ -7,4 +7,4 @@ project(cmusic
 
 file(GLOB src_files src/*.c)
 add_executable(cmusic ${src_files})
-target_include_directories(cmusic include)
+target_include_directories(cmusic PRIVATE include)
