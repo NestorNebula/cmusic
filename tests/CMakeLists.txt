@@ -1,27 +1,22 @@
 cmake_minimum_required(VERSION 3.15...4.00)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(cmusic-tests)
 
-project(cmusic-tests
-        LANGUAGES C CXX)
-
-file(GLOB test_files *.cpp)
+file(GLOB test_files *.c)
 add_executable(cmusic-tests ${test_files})
-target_include_directories(cmusic ../include)
+target_include_directories(cmusic-tests PRIVATE ../include ../lib)
 
 file(GLOB src_files ../src/*.c)
-add_library(src src_files)
-target_include_directories(src ../include)
+list(FILTER src_files EXCLUDE REGEX "main.c")
+add_library(src ${src_files})
+target_include_directories(src PRIVATE ../include ../lib)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+add_library(cJSON SHARED ../lib/cjson/cJSON.c)
+target_include_directories(cJSON PRIVATE ../lib/cjson)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(criterion REQUIRED IMPORTED_TARGET criterion)
 
 enable_testing()
 
-target_link_libraries(cmusic GTest::gtest src)
+target_link_libraries(cmusic-tests src curl cJSON PkgConfig::criterion)
