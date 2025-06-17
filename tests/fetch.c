@@ -15,15 +15,21 @@ FAKE_VALUE_FUNC(cJSON *, cJSON_Parse, const char *);
 cJSON *cjson_object = NULL;
 
 void setup(void) {
-  cjson_object = cJSON_CreateObject();
-  cJSON_AddStringToObject(cjson_object, OBJ_PROPERTY, OBJ_VALUE);
+  RESET_FAKE(cJSON_Parse);
+  RESET_FAKE(curl_easy_perform);
 
-  cJSON_Parse_fake.return_val = cjson_object;
+  if (cjson_object == NULL) {
+    cjson_object = cJSON_CreateObject();
+    cJSON_AddStringToObject(cjson_object, OBJ_PROPERTY, OBJ_VALUE);
+    cJSON_Parse_fake.return_val = cjson_object;
+  }
+
   curl_easy_perform_fake.return_val = CURLE_OK;
 }
 
+TestSuite(fetch, .init = setup);
+
 Test(fetch, fetches_api_using_curl_easy_perform) {
-  RESET_FAKE(curl_easy_perform);
   fetch("https://test.com", "GET", NULL);
   cr_expect(eq(int, curl_easy_perform_fake.call_count, 1),
             "Expected curl_easy_perform to have been called");
