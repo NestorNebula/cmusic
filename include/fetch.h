@@ -1,3 +1,6 @@
+#ifndef FETCH_H
+#define FETCH_H
+
 #include <cjson/cJSON.h>
 #include "types.h"
 
@@ -10,3 +13,5 @@
  * Returns the parsed data if no error occurred, else returns a null pointer.
  */
 cJSON *fetch(string url, string method, string body);
+
+#endif
