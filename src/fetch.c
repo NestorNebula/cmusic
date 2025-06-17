@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <curl/curl.h>
 #include "fetch.h"
 
@@ -23,13 +24,14 @@ string token = NULL;
 
 /*
  * curl_cb:
- * Callback used by curl_easy_perform to write the response's content
+ * Callback used by curl_easy_perform to write the response's content.
  * contents is a pointer to the response's content,
  * size is the size of a "member" of contents,
  * nmemb is the number of "members" of contents,
- * res_ptr is a pointer passed in CURLOPT_WRITEDATA.
+ * res_ptr is a pointer defined by the user on 
+ * a previous call of CURLOPT_WRITEDATA.
  * Returns the total size of written content (size * nmemb) 
- * if no error occurred, else it returns 0.
+ * if no error occurred, else returns 0.
  */
 static size_t curl_cb(void *contents, size_t size, size_t nmemb, 
                       void *res_ptr);
@@ -41,13 +43,12 @@ static size_t curl_cb(void *contents, size_t size, size_t nmemb,
  * If body is null, the request's body will be set to null.
  * Returns the API's response as a JSON string.
  * If url or method is null, if method isn't valid or if an error occurs
- * while calling the API, returns a null pointer.
+ * while calling the API, terminates the program.
  */
 static string call_api(string url, string method, string body);
 
 cJSON *fetch(string url, string method, string body) {
   string json_res = call_api(url, method, body);
-  if (json_res == NULL) return NULL;
   cJSON *res = cJSON_Parse(json_res);
   free(json_res);
   return res;
@@ -70,7 +71,7 @@ static size_t curl_cb(void *contents, size_t size, size_t nmemb,
 }
 
 static string call_api(string url, string method, string body) {
-  if (url == NULL || method == NULL || !IS_METHOD(method)) return NULL;
+  if (url == NULL || method == NULL || !IS_METHOD(method)) exit(EXIT_FAILURE);
 
   CURL *curl;
   CURLcode rc = (CURLcode) CURLE_OK - 1;
@@ -125,6 +126,6 @@ static string call_api(string url, string method, string body) {
 
   if (rc != CURLE_OK) {
     free(res.content);
-    return NULL;
+    exit(EXIT_FAILURE);
   } else return res.content;
 }
