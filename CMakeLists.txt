@@ -7,4 +7,8 @@ project(cmusic
 
 file(GLOB src_files src/*.c)
 add_executable(cmusic ${src_files})
-target_include_directories(cmusic PRIVATE include)
+target_include_directories(cmusic PRIVATE include lib)
+
+add_library(cJSON SHARED lib/cjson/cJSON.c)
+target_include_directories(cJSON PRIVATE lib/cjson)
+target_link_libraries(cmusic cJSON curl)
