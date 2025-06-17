@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <fff/fff.h>
@@ -47,14 +48,13 @@ Test(fetch, returns_json_parsed_with_cjson) {
             "Expected str_item value to be %s", OBJ_VALUE);
 }
 
-Test(fetch, returns_null_on_curl_error) {
+Test(fetch, terminate_program_on_curl_error, .exit_code = EXIT_FAILURE, 
+     .description = "Test") {
   curl_easy_perform_fake.return_val = (CURLcode) CURLE_OK + 1;
-  cr_expect(fetch("https://test.com", "GET", NULL) == NULL,
-            "Expected fetch to return NULL");
-  curl_easy_perform_fake.return_val = CURLE_OK;
+  fetch("https://test.com", "GET", NULL);
 }
 
-Test(fetch, returns_null_when_invalid_method_is_passed) {
-  cr_expect(fetch("https://test.com", "METHOD", NULL) == NULL, 
-            "Expected fetch to return NULL");
+Test(fetch, terminate_program_when_invalid_method_is_passed, 
+     .exit_code = EXIT_FAILURE) {
+  fetch("https://test.com", "METHOD", NULL);
 }
