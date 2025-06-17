@@ -15,7 +15,7 @@ FAKE_VALUE_FUNC(cJSON *, cJSON_Parse, const char *);
 
 cJSON *cjson_object = NULL;
 
-void setup(void) {
+static void setup(void) {
   RESET_FAKE(cJSON_Parse);
   RESET_FAKE(curl_easy_perform);
 

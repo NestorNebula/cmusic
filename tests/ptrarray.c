@@ -5,12 +5,12 @@
 
 PtrArray ptr_array = NULL;
 
-void setup(void) {
+static void setup(void) {
   ptr_array = new_ptr_array();
   if (ptr_array == NULL) exit(EXIT_FAILURE);
 }
 
-void teardown(void) {
+static void teardown(void) {
   if (ptr_array != NULL) free_ptr_array(ptr_array, true);
 }
 
