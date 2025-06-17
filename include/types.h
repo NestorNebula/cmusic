@@ -58,9 +58,9 @@ struct album {
   string id;
   string name;
   string release_date;
-  struct restrictions restrictions;
+  Restrictions restrictions;
   SimplifiedArtist *artists;
-  struct page tracks; 
+  Page tracks; 
   size_t popularity;
 };
 
@@ -71,7 +71,7 @@ struct simplified_album {
   string id;
   string name;
   string release_date;
-  struct restrictions restrictions;
+  Restrictions restrictions;
   SimplifiedArtist *artists;
 };
 
@@ -84,7 +84,7 @@ struct saved_album {
 // Artists 
 
 struct artist {
-  struct followers followers;
+  Followers followers;
   string *genres;
   string id;
   string name;
@@ -107,7 +107,7 @@ struct playlist {
   SimplifiedUser owner; 
   bool public;
   string snapshot_id;
-  struct page tracks;
+  Page tracks;
 };
 
 struct simplified_playlist {
@@ -141,7 +141,7 @@ struct track {
   SimplifiedArtist *artists;
   size_t duration_ms;
   string id;
-  struct restrictions restrictions;
+  Restrictions restrictions;
   string name;
   size_t popularity;
 };
@@ -151,7 +151,7 @@ struct simplified_track {
   size_t duration_ms;
   string href;
   string id;
-  struct restrictions restrictions;
+  Restrictions restrictions;
   string name;
 };
 
@@ -165,7 +165,7 @@ struct saved_track {
 
 struct user {
   string display_name;
-  struct followers followers;
+  Followers followers;
   string id;
 };
 
