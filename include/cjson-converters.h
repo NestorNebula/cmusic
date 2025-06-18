@@ -23,7 +23,8 @@
  * Returns a pointer to the first element of a null-terminated array of 
  * pointers pointing to structures created by cJSON_to_item_type.
  */
-void **cJSON_to_array(cJSON *array, void *(*cJSON_to_item_type)(cJSON *item));
+void **cJSON_to_array(cJSON *cJSON_array,
+                      void *(*cJSON_to_item_type)(cJSON *item));
 
 /*
  * cJSON_to_album:
