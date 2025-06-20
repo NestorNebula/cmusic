@@ -27,8 +27,14 @@ PtrArray new_ptr_array(void) {
   return ptr_array;
 }
 
-void free_ptr_array(PtrArray ptr_array, bool free_content) {
-  if (free_content) free(ptr_array->array);
+void free_ptr_array(PtrArray ptr_array, bool free_content,
+                    void (*free_item)(void *item)) {
+  if (ptr_array != NULL && ptr_array->array != NULL && free_content) {
+    for (int i = 0; ptr_array->array[i] != NULL; i++) {
+      if (free_item != NULL) (*free_item)(ptr_array->array[i]);
+    }
+    free(ptr_array->array);
+  }
   free(ptr_array);
 }
 
