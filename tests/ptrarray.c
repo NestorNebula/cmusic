@@ -11,14 +11,13 @@ static void setup(void) {
 }
 
 static void teardown(void) {
-  if (ptr_array != NULL) free_ptr_array(ptr_array, true);
+  if (ptr_array != NULL) free_ptr_array(ptr_array, true, NULL);
 }
 
-Test(new_ptr_array, returns_pointer_to_ptr_array_structure) {
+Test(new_ptr_array, returns_pointer_to_ptr_array_structure, .fini = teardown) {
   ptr_array = new_ptr_array();
   cr_expect(ptr_array != NULL,
             "Expected ptr_array to point to a new ptr_array structure");
-  free_ptr_array(ptr_array, true);
 }
 
 Test(add_item, returns_number_of_item_after_adding_item,
