@@ -44,7 +44,8 @@ Test(cJSON_to_array, creates_array_of_content) {
   User *users = (User *) cJSON_to_array(cJSON_array, cJSON_to_user);
   for (User *ptr = users; ptr != NULL; ptr++) {
     User user = *ptr;
-    cr_expect(eq(str, user->display_name, USER_NAME));
+    cr_expect(eq(str, user->display_name, USER_NAME),
+              "Expected user's display_name to be %s", USER_NAME);
   }
 }
 
@@ -59,8 +60,10 @@ Test(cJSON_to_album, creates_album_structure) {
   cJSON *cJSON_album = cJSON_Parse(get_album_json());
 
   Album album = cJSON_to_album(cJSON_album);
-  cr_expect(eq(str, album->id, ID));
-  cr_expect(eq(str, album->name, ALBUM_NAME));
+  cr_expect(eq(str, album->id, ID),
+            "Expected album's id to be %s", ID);
+  cr_expect(eq(str, album->name, ALBUM_NAME),
+            "Expected album's name to be %s", ALBUM_NAME);
 }
 
 Test(cJSON_to_album, terminates_program_when_given_invalid_data, 
@@ -75,8 +78,10 @@ Test(cJSON_to_simplified_album, creates_simplified_album_structure) {
 
   SimplifiedAlbum simplified_album =
     cJSON_to_simplified_album(cJSON_simplified_album);
-  cr_expect(eq(str, simplified_album->id, ID));
-  cr_expect(eq(simplified_album->name, ALBUM_NAME));
+  cr_expect(eq(str, simplified_album->id, ID),
+            "Expected simplified album's id to be %s", ID);
+  cr_expect(eq(simplified_album->name, ALBUM_NAME),
+            "Expect simplified album's name to be %s", ALBUM_NAME);
 }
 
 Test(cJSON_to_simplified_album, terminates_program_when_given_invalid_data,
@@ -90,8 +95,10 @@ Test(cJSON_to_saved_album, creates_saved_album_structure) {
   cJSON *cJSON_saved_album = cJSON_Parse(get_saved_album_json());
 
   SavedAlbum saved_album = cJSON_to_saved_album(cJSON_saved_album);
-  cr_expect(eq(str, saved_album->album->id, ID));
-  cr_expect(eq(str, saved_album->added_at, DATE));
+  cr_expect(eq(str, saved_album->album->id, ID),
+            "Expected saved album's album id to be %s", ID);
+  cr_expect(eq(str, saved_album->added_at, DATE),
+            "Expected saved album add date to be %s", DATE);
 }
 
 Test(cJSON_to_saved_album, terminates_program_when_given_invalid_data,
@@ -105,8 +112,10 @@ Test(cJSON_to_artist, creates_artist_structure) {
   cJSON *cJSON_artist = cJSON_Parse(get_artist_json());
 
   Artist artist = cJSON_to_artist(cJSON_artist);
-  cr_expect(eq(str, artist->id, ID));
-  cr_expect(eq(str, artist->name, ARTIST_NAME));
+  cr_expect(eq(str, artist->id, ID),
+            "Expected artist's id to be %s", ID);
+  cr_expect(eq(str, artist->name, ARTIST_NAME),
+            "Expected artist's name to be %s", ARTIST_NAME);
 }
 
 Test(cJSON_to_artist, terminates_program_when_given_invalid_data,
@@ -121,8 +130,10 @@ Test(cJSON_to_simplified_artist, creates_simplified_artist_structure) {
   
   SimplifiedArtist simplified_artist =
     cJSON_to_simplified_artist(cJSON_simplified_artist);
-  cr_expect(eq(str, simplified_artist->id, ID));
-  cr_expect(eq(str, simplified_artist->name, ARTIST_NAME));
+  cr_expect(eq(str, simplified_artist->id, ID),
+            "Expected simplified artist's id to be %s", ID);
+  cr_expect(eq(str, simplified_artist->name, ARTIST_NAME),
+            "Expected simplified artist's name to be %s", ARTIST_NAME);
 }
 
 Test(cJSON_to_simplified_artist, terminates_program_when_given_invalid_data,
@@ -136,8 +147,10 @@ Test(cJSON_to_playlist, creates_playlist_structure) {
   cJSON *cJSON_playlist = cJSON_Parse(get_playlist_json());
   
   Playlist playlist = cJSON_to_playlist(cJSON_playlist);
-  cr_expect(eq(str, playlist->id, ID));
-  cr_expect(eq(str, playlist->name, PLAYLIST_NAME));
+  cr_expect(eq(str, playlist->id, ID),
+            "Expected playlist's id to be %s", ID);
+  cr_expect(eq(str, playlist->name, PLAYLIST_NAME),
+            "Expected playlist's name to be %s", PLAYLIST_NAME);
 }
 
 Test(cJSON_to_playlist, terminates_program_when_given_invalid_data,
@@ -154,8 +167,10 @@ Test(cJSON_to_simplified_playlist, creates_simplified_playlist_structure) {
   
   SimplifiedPlaylist simplified_playlist =
     cJSON_to_simplified_playlist(cJSON_simplified_playlist);
-  cr_expect(eq(str, simplified_playlist->snapshot_id, ID));
-  cr_expect(eq(str, simplified_playlist->name, PLAYLIST_NAME));
+  cr_expect(eq(str, simplified_playlist->snapshot_id, ID),
+            "Expected simplified playlist's snapshot id to be %s", ID);
+  cr_expect(eq(str, simplified_playlist->name, PLAYLIST_NAME),
+            "Expected simplified playlist's name to be %s", PLAYLIST_NAME);
 }
 
 Test(cJSON_to_simplified_playlist, terminates_program_when_given_invalid_data,
@@ -169,8 +184,10 @@ Test(cJSON_to_playlist_track, creates_playlist_track_structure) {
   cJSON *cJSON_playlist_track = cJSON_Parse(get_playlist_track_json());
 
   PlaylistTrack playlist_track = cJSON_to_playlist_track(cJSON_playlist_track);
-  cr_expect(eq(str, playlist_track->added_at, DATE));
-  cr_expect(eq(str, playlist_track->added_by.id, ID));
+  cr_expect(eq(str, playlist_track->added_at, DATE),
+            "Expected playlist track's added date to be %s", DATE);
+  cr_expect(eq(str, playlist_track->added_by.id, ID),
+            "Expected id of user that added playlist_track to be %s", ID);
 }
 
 Test(cJSON_to_playlist_track, terminates_program_when_given_invalid_data,
@@ -184,8 +201,10 @@ Test(cJSON_to_track, creates_track_structure) {
   cJSON *cJSON_track = cJSON_Parse(get_track_json());
   
   Track track = cJSON_to_track(cJSON_track);
-  cr_expect(eq(str, track->id, ID));
-  cr_expect(eq(str, track->name, TRACK_NAME));
+  cr_expect(eq(str, track->id, ID),
+            "Expected track's id to be %s", ID);
+  cr_expect(eq(str, track->name, TRACK_NAME),
+            "Expected track's name to be %s", TRACK_NAME);
 }
 
 Test(cJSON_to_track, terminates_program_when_given_invalid_data,
@@ -200,8 +219,10 @@ Test(cJSON_to_simplified_track, creates_simplified_track_structure) {
 
   SimplifiedTrack simplified_track =
     cJSON_to_simplified_track(cJSON_simplified_track);
-  cr_expect(eq(str, simplified_track->id, ID));
-  cr_expect(eq(str, simplified_track->name, TRACK_NAME));
+  cr_expect(eq(str, simplified_track->id, ID),
+            "Expected simplified track's id to be %s", ID);
+  cr_expect(eq(str, simplified_track->name, TRACK_NAME),
+            "Expected simplified track's name to be %s", TRACK_NAME);
 }
 
 Test(cJSON_to_simplified_track, terminates_program_when_given_invalid_data,
@@ -215,8 +236,10 @@ Test(cJSON_to_saved_track, creates_saved_track_structure) {
   cJSON *cJSON_saved_track = cJSON_Parse(get_saved_track_json());
 
   SavedTrack saved_track = cJSON_to_saved_track(cJSON_saved_track);
-  cr_expect(eq(str, saved_track->added_at, DATE));
-  cr_expect(eq(str, saved_track->track->id, ID));
+  cr_expect(eq(str, saved_track->added_at, DATE),
+            "Expected saved track's added date to be %s", DATE);
+  cr_expect(eq(str, saved_track->track->id, ID),
+            "Expected saved track's track id to be %s", ID);
 }
 
 Test(cJSON_to_saved_track, terminates_program_when_given_invalid_data,
@@ -230,8 +253,10 @@ Test(cJSON_to_user, creates_user_structure) {
   cJSON *cJSON_user = cJSON_Parse(get_user_json());
 
   User user = cJSON_to_user(cJSON_user);
-  cr_expect(eq(str, user->id, ID));
-  cr_expect(eq(str, user->display_name, USER_NAME));
+  cr_expect(eq(str, user->id, ID),
+            "Expected user's id to be %s", ID);
+  cr_expect(eq(str, user->display_name, USER_NAME),
+            "Expected user's display name to be %s", USER_NAME);
 }
 
 Test(cJSON_to_user, terminates_progam_when_given_invalid_data,
@@ -246,8 +271,10 @@ Test(cJSON_to_simplified_user, creates_simplified_user_structure) {
 
   SimplifiedUser simplified_user = 
     cJSON_to_simplified_user(cJSON_simplified_user);
-  cr_expect(eq(str, simplified_user->id, ID));
-  cr_expect(eq(str, simplified_user->display_name, USER_NAME));
+  cr_expect(eq(str, simplified_user->id, ID),
+            "Expected simplified user's id to be %s", ID);
+  cr_expect(eq(str, simplified_user->display_name, USER_NAME),
+            "Expected simplified user's display name to be %s", USER_NAME);
 }
 
 Test(cJSON_to_simplified_user, terminates_program_when_given_invalid_data,
@@ -261,7 +288,7 @@ Test(cJSON_to_followers, creates_followers_structure) {
   cJSON *cJSON_followers = cJSON_Parse(get_followers_json());
 
   Followers followers = cJSON_to_followers(cJSON_followers);
-  cr_expect(followers != NULL);
+  cr_expect(followers != NULL, "Expected followers structures to be created");
 }
 
 Test(cJSON_to_followers, terminates_program_when_given_invalid_data,
@@ -275,8 +302,9 @@ Test(cJSON_to_page, creates_page_structure) {
   cJSON *cJSON_page = cJSON_Parse(get_page_json());
 
   Page page = cJSON_to_page(cJSON_page, NULL);
-  cr_expect(eq(str, page->href, HREF));
-  cr_expect(page->items != NULL);
+  cr_expect(eq(str, page->href, HREF),
+            "Expected page's href to be %s", HREF);
+  cr_expect(page->items != NULL, "Expected page's items array to be created");
 }
 
 Test(cJSON_to_page, terminates_program_when_given_invalid_data,
@@ -290,7 +318,8 @@ Test(cJSON_to_restrictions, creates_restrictions_structure) {
   cJSON *cJSON_restrictions = cJSON_Parse(get_restrictions_json());
 
   Restrictions restrictions = cJSON_to_restrictions(cJSON_restrictions);
-  cr_expect(restrictions != NULL);
+  cr_expect(restrictions != NULL, 
+            "Expected restrictions structure to be created");
 }
 
 Test(cJSON_to_restrictions, terminates_program_when_given_invalid_data,
@@ -304,8 +333,10 @@ Test(cJSON_to_search, creates_search_structure) {
   cJSON *cJSON_search = cJSON_Parse(get_search_json());
 
   Search search = cJSON_to_search(cJSON_search);
-  cr_expect(eq(str, search->tracks->href, HREF));
-  cr_expect(eq(str, search->artists->href, HREF));
+  cr_expect(eq(str, search->tracks->href, HREF),
+            "Expected search's tracks page href to be %s", HREF);
+  cr_expect(eq(str, search->artists->href, HREF),
+            "Expected track's artists page href to be %s", HREF);
 }
 
 Test(cJSON_to_search, terminates_program_when_given_invalid_data) {

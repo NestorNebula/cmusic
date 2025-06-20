@@ -22,16 +22,21 @@ Test(new_ptr_array, returns_pointer_to_ptr_array_structure, .fini = teardown) {
 
 Test(add_item, returns_number_of_item_after_adding_item,
      .init = setup, .fini = teardown) {
-  cr_expect(eq(add_item(ptr_array, (void *) NULL), 1));
-  cr_expect(eq(add_item(ptr_array, (void *) NULL), 2));
+  cr_expect(eq(add_item(ptr_array, (void *) NULL), 1),
+            "Expected add_item to return new number of items");
+  cr_expect(eq(add_item(ptr_array, (void *) NULL), 2),
+            "Expected add_item to return new number of items");
 }
 
 Test(get_size, returns_array_size, .init = setup, .fini = teardown) {
-  cr_expect(zero(get_size(ptr_array)));
+  cr_expect(zero(get_size(ptr_array)),
+            "Expected get_size to return the number of items in array");
   add_item(ptr_array, (void *) NULL);
-  cr_expect(eq(get_size(ptr_array), 1));
+  cr_expect(eq(get_size(ptr_array), 1),
+            "Expected get_size to return the number of items in array");
   add_item(ptr_array, (void *) NULL);
-  cr_expect(eq(get_size(ptr_array), 2));
+  cr_expect(eq(get_size(ptr_array), 2),
+            "Expected get_size to return the number of items in array");
 }
 
 Test(get_array, returns_null_terminated_array, 
@@ -41,6 +46,7 @@ Test(get_array, returns_null_terminated_array,
   add_item(ptr_array, &j);
   int **int_array = (int **) get_array(ptr_array);
   for (int k = 0; int_array[k] != NULL; k++) {
-    cr_assert(eq(k + 1, *int_array[k]));
+    cr_assert(eq(k + 1, *int_array[k]),
+              "Expected item %s of array to have value %s", k, k + 1);
   }
 }
