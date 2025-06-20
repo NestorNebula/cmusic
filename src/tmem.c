@@ -18,14 +18,6 @@
  */
 static void free_all(void *first_ptr, ...);
 
-/*
- * free_array:
- * Releases memory taken by a null-terminated array and by its arguments.
- * The first argument should be a pointer to the first element of an array.
- * The second argument should be a function that will release the memory of
- * its argument item. This function will be called for every item in array.
- */
-static void free_array(void **array, void (*free_item)(void *item));
 
 void *talloc(void *(new_type)(void)) {
   return (*new_type)();
@@ -178,6 +170,15 @@ void *new_search(void) {
 
 void tfree(void (*free_type)(void *type_struct_ptr), void *type_struct_ptr) {
   (*free_type)(type_struct_ptr);
+}
+
+void free_array(void **array, void (*free_item)(void *item)) {
+  if (array != NULL) {
+    for (int i = 0; array[i] != NULL; i++) {
+      (*free_item)(array[i]);
+    }
+    free(array);
+  }
 }
 
 void free_album(void *album_ptr) {
@@ -345,11 +346,3 @@ static void free_all(void *first_ptr, ...) {
   va_end(ap);
 }
 
-static void free_array(void **array, void (*free_item)(void *item)) {
-  if (array != NULL) {
-    for (int i = 0; array[i] != NULL; i++) {
-      (*free_item)(array[i]);
-    }
-    free(array);
-  }
-}
