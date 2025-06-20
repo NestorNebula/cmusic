@@ -23,13 +23,16 @@ PtrArray new_ptr_array(void);
  * free_ptr_array:
  * Releases space taken by the ptr_array structure.
  * If free_content is set to true, also releases the space taken by
- * the structure's array. If set to false, the space taken by the
- * structure's array won't be freed.
+ * the structure's array and its members. 
+ * If set to false, the space taken by the structure's array won't be freed.
  * It is important to retrieve the structure's array using get_array before
  * calling this function with free_content set to false, else this will result
  * in a memory leak.
+ * The third argument is a function that will be called to free each data
+ * pointed by an array item (if free_content was set to true).
  */
-void free_ptr_array(PtrArray ptr_array, bool free_content);
+void free_ptr_array(PtrArray ptr_array, bool free_content,
+                    void (*free_item)(void *item));
 
 /*
  * add_item:
