@@ -54,7 +54,7 @@ static void teardown(void) {
 
 Test(cJSON_to_array, creates_array_of_content, .fini = teardown) {
   cJSON *cJSON_array_object = cjson_ptr = 
-    cJSON_Parse(get_array_json(get_user_json));
+    cJSON_ParseWithOpts(get_array_json(get_user_json), 0, 0);
   cJSON *cJSON_array = 
     cJSON_GetObjectItemCaseSensitive(cJSON_array_object, "array");
 
@@ -71,7 +71,7 @@ Test(cJSON_to_array, creates_array_of_content, .fini = teardown) {
 
 Test(cJSON_to_array, terminates_program_when_given_invalid_data, 
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_user = cjson_ptr = cJSON_Parse(get_user_json());
+  cJSON *cJSON_user = cjson_ptr = cJSON_ParseWithOpts(get_user_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_array(cJSON_user, cJSON_to_user);
   array = true;
@@ -79,7 +79,7 @@ Test(cJSON_to_array, terminates_program_when_given_invalid_data,
 }
 
 Test(cJSON_to_album, creates_album_structure, .fini = teardown) {
-  cJSON *cJSON_album = cjson_ptr = cJSON_Parse(get_album_json());
+  cJSON *cJSON_album = cjson_ptr = cJSON_ParseWithOpts(get_album_json(), 0, 0);
 
   Album album = type_struct_ptr = cJSON_to_album(cJSON_album);
   cr_expect(eq(str, album->id, ID),
@@ -92,7 +92,7 @@ Test(cJSON_to_album, creates_album_structure, .fini = teardown) {
 Test(cJSON_to_album, terminates_program_when_given_invalid_data, 
      .exit_code = EXIT_FAILURE, .fini = teardown) {
   cJSON *cJSON_simplified_album = cjson_ptr = 
-    cJSON_Parse(get_simplified_album_json());
+    cJSON_ParseWithOpts(get_simplified_album_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_album(cJSON_simplified_album);
   free_function = free_album;
@@ -101,7 +101,7 @@ Test(cJSON_to_album, terminates_program_when_given_invalid_data,
 Test(cJSON_to_simplified_album, creates_simplified_album_structure, 
      .fini = teardown) {
   cJSON *cJSON_simplified_album = cjson_ptr = 
-    cJSON_Parse(get_simplified_album_json());
+    cJSON_ParseWithOpts(get_simplified_album_json(), 0, 0);
 
   SimplifiedAlbum simplified_album =
     type_struct_ptr = cJSON_to_simplified_album(cJSON_simplified_album);
@@ -114,14 +114,15 @@ Test(cJSON_to_simplified_album, creates_simplified_album_structure,
 
 Test(cJSON_to_simplified_album, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_album = cjson_ptr = cJSON_Parse(get_album_json());
+  cJSON *cJSON_album = cjson_ptr = cJSON_ParseWithOpts(get_album_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_simplified_album(cJSON_album);
   free_function = free_simplified_album;
 }
 
 Test(cJSON_to_saved_album, creates_saved_album_structure, .fini = teardown) {
-  cJSON *cJSON_saved_album = cjson_ptr = cJSON_Parse(get_saved_album_json());
+  cJSON *cJSON_saved_album = cjson_ptr = 
+    cJSON_ParseWithOpts(get_saved_album_json(), 0, 0);
 
   SavedAlbum saved_album = type_struct_ptr = 
     cJSON_to_saved_album(cJSON_saved_album);
@@ -134,14 +135,15 @@ Test(cJSON_to_saved_album, creates_saved_album_structure, .fini = teardown) {
 
 Test(cJSON_to_saved_album, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_album = cjson_ptr = cJSON_Parse(get_album_json());
+  cJSON *cJSON_album = cjson_ptr = cJSON_ParseWithOpts(get_album_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_saved_album(cJSON_album);
   free_function = free_saved_album;
 }
 
 Test(cJSON_to_artist, creates_artist_structure, .fini = teardown) {
-  cJSON *cJSON_artist = cjson_ptr = cJSON_Parse(get_artist_json());
+  cJSON *cJSON_artist = cjson_ptr = 
+    cJSON_ParseWithOpts(get_artist_json(), 0, 0);
 
   Artist artist = type_struct_ptr = cJSON_to_artist(cJSON_artist);
   cr_expect(eq(str, artist->id, ID),
@@ -154,7 +156,7 @@ Test(cJSON_to_artist, creates_artist_structure, .fini = teardown) {
 Test(cJSON_to_artist, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
   cJSON *cJSON_simplified_artist = cjson_ptr =
-    cJSON_Parse(get_simplified_artist_json());
+    cJSON_ParseWithOpts(get_simplified_artist_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_artist(cJSON_simplified_artist);
   free_function = free_artist;
@@ -163,7 +165,7 @@ Test(cJSON_to_artist, terminates_program_when_given_invalid_data,
 Test(cJSON_to_simplified_artist, creates_simplified_artist_structure, 
      .fini = teardown) {
   cJSON *cJSON_simplified_artist = cjson_ptr = 
-    cJSON_Parse(get_simplified_artist_json());
+    cJSON_ParseWithOpts(get_simplified_artist_json(), 0, 0);
   
   SimplifiedArtist simplified_artist =
     type_struct_ptr = cJSON_to_simplified_artist(cJSON_simplified_artist);
@@ -176,14 +178,16 @@ Test(cJSON_to_simplified_artist, creates_simplified_artist_structure,
 
 Test(cJSON_to_simplified_artist, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_artist = cjson_ptr = cJSON_Parse(get_artist_json());
+  cJSON *cJSON_artist = cjson_ptr = 
+    cJSON_ParseWithOpts(get_artist_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_simplified_artist(cJSON_artist);
   free_function = free_simplified_artist;
 }
 
 Test(cJSON_to_playlist, creates_playlist_structure, .fini = teardown) {
-  cJSON *cJSON_playlist = cjson_ptr = cJSON_Parse(get_playlist_json());
+  cJSON *cJSON_playlist = cjson_ptr = 
+    cJSON_ParseWithOpts(get_playlist_json(), 0, 0);
   
   Playlist playlist = type_struct_ptr = cJSON_to_playlist(cJSON_playlist);
   cr_expect(eq(str, playlist->id, ID),
@@ -196,7 +200,7 @@ Test(cJSON_to_playlist, creates_playlist_structure, .fini = teardown) {
 Test(cJSON_to_playlist, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
   cJSON *cJSON_simplified_playlist = cjson_ptr =
-    cJSON_Parse(get_simplified_playlist_json());
+    cJSON_ParseWithOpts(get_simplified_playlist_json(), 0, 0);
   
   type_struct_ptr = cJSON_to_playlist(cJSON_simplified_playlist);
   free_function = free_playlist;
@@ -205,7 +209,7 @@ Test(cJSON_to_playlist, terminates_program_when_given_invalid_data,
 Test(cJSON_to_simplified_playlist, creates_simplified_playlist_structure,
      .fini = teardown) {
   cJSON *cJSON_simplified_playlist = cjson_ptr =
-    cJSON_Parse(get_simplified_playlist_json());
+    cJSON_ParseWithOpts(get_simplified_playlist_json(), 0, 0);
   
   SimplifiedPlaylist simplified_playlist =
     type_struct_ptr = cJSON_to_simplified_playlist(cJSON_simplified_playlist);
@@ -218,7 +222,8 @@ Test(cJSON_to_simplified_playlist, creates_simplified_playlist_structure,
 
 Test(cJSON_to_simplified_playlist, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_playlist = cjson_ptr = cJSON_Parse(get_playlist_json());
+  cJSON *cJSON_playlist = cjson_ptr = 
+    cJSON_ParseWithOpts(get_playlist_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_simplified_playlist(cJSON_playlist);
   free_function = free_simplified_playlist;
@@ -227,7 +232,7 @@ Test(cJSON_to_simplified_playlist, terminates_program_when_given_invalid_data,
 Test(cJSON_to_playlist_track, creates_playlist_track_structure,
      .fini = teardown) {
   cJSON *cJSON_playlist_track = cjson_ptr = 
-    cJSON_Parse(get_playlist_track_json());
+    cJSON_ParseWithOpts(get_playlist_track_json(), 0, 0);
 
   PlaylistTrack playlist_track = type_struct_ptr = 
     cJSON_to_playlist_track(cJSON_playlist_track);
@@ -240,14 +245,14 @@ Test(cJSON_to_playlist_track, creates_playlist_track_structure,
 
 Test(cJSON_to_playlist_track, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_track = cjson_ptr = cJSON_Parse(get_track_json());
+  cJSON *cJSON_track = cjson_ptr = cJSON_ParseWithOpts(get_track_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_playlist_track(cJSON_track);
   free_function = free_playlist_track;
 }
 
 Test(cJSON_to_track, creates_track_structure, .fini = teardown) {
-  cJSON *cJSON_track = cjson_ptr = cJSON_Parse(get_track_json());
+  cJSON *cJSON_track = cjson_ptr = cJSON_ParseWithOpts(get_track_json(), 0, 0);
   
   Track track = type_struct_ptr = cJSON_to_track(cJSON_track);
   cr_expect(eq(str, track->id, ID),
@@ -259,7 +264,8 @@ Test(cJSON_to_track, creates_track_structure, .fini = teardown) {
 
 Test(cJSON_to_track, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_simplified_track = cjson_ptr = cJSON_Parse(get_simplified_track_json());
+  cJSON *cJSON_simplified_track = cjson_ptr =
+  cJSON_ParseWithOpts(get_simplified_track_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_track(cJSON_simplified_track);
   free_function = free_track;
@@ -267,7 +273,8 @@ Test(cJSON_to_track, terminates_program_when_given_invalid_data,
 
 Test(cJSON_to_simplified_track, creates_simplified_track_structure, 
      .fini = teardown) {
-  cJSON *cJSON_simplified_track = cjson_ptr = cJSON_Parse(get_simplified_track_json());
+  cJSON *cJSON_simplified_track = cjson_ptr =
+  cJSON_ParseWithOpts(get_simplified_track_json(), 0, 0);
 
   SimplifiedTrack simplified_track =
     type_struct_ptr = cJSON_to_simplified_track(cJSON_simplified_track);
@@ -280,14 +287,15 @@ Test(cJSON_to_simplified_track, creates_simplified_track_structure,
 
 Test(cJSON_to_simplified_track, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_track = cjson_ptr = cJSON_Parse(get_track_json());
+  cJSON *cJSON_track = cjson_ptr = cJSON_ParseWithOpts(get_track_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_simplified_track(cJSON_track);
   free_function = free_simplified_track;
 }
 
 Test(cJSON_to_saved_track, creates_saved_track_structure, .fini = teardown) {
-  cJSON *cJSON_saved_track = cjson_ptr = cJSON_Parse(get_saved_track_json());
+  cJSON *cJSON_saved_track = cjson_ptr = 
+    cJSON_ParseWithOpts(get_saved_track_json(), 0, 0);
 
   SavedTrack saved_track = type_struct_ptr = 
     cJSON_to_saved_track(cJSON_saved_track);
@@ -300,14 +308,14 @@ Test(cJSON_to_saved_track, creates_saved_track_structure, .fini = teardown) {
 
 Test(cJSON_to_saved_track, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_track = cjson_ptr = cJSON_Parse(get_track_json());
+  cJSON *cJSON_track = cjson_ptr = cJSON_ParseWithOpts(get_track_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_saved_track(cJSON_track);
   free_function = free_saved_track;
 }
 
 Test(cJSON_to_user, creates_user_structure, .fini = teardown) {
-  cJSON *cJSON_user = cjson_ptr = cJSON_Parse(get_user_json());
+  cJSON *cJSON_user = cjson_ptr = cJSON_ParseWithOpts(get_user_json(), 0, 0);
 
   User user = type_struct_ptr = cJSON_to_user(cJSON_user);
   cr_expect(eq(str, user->id, ID),
@@ -320,7 +328,7 @@ Test(cJSON_to_user, creates_user_structure, .fini = teardown) {
 Test(cJSON_to_user, terminates_progam_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
   cJSON *cJSON_simplified_user = cjson_ptr = 
-    cJSON_Parse(get_simplified_user_json());
+    cJSON_ParseWithOpts(get_simplified_user_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_user(cJSON_simplified_user);
   free_function = free_user;
@@ -329,7 +337,7 @@ Test(cJSON_to_user, terminates_progam_when_given_invalid_data,
 Test(cJSON_to_simplified_user, creates_simplified_user_structure, 
      .fini = teardown) {
   cJSON *cJSON_simplified_user = cjson_ptr = 
-    cJSON_Parse(get_simplified_user_json());
+    cJSON_ParseWithOpts(get_simplified_user_json(), 0, 0);
 
   SimplifiedUser simplified_user = 
     type_struct_ptr = cJSON_to_simplified_user(cJSON_simplified_user);
@@ -342,14 +350,15 @@ Test(cJSON_to_simplified_user, creates_simplified_user_structure,
 
 Test(cJSON_to_simplified_user, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_user = cjson_ptr = cJSON_Parse(get_user_json());
+  cJSON *cJSON_user = cjson_ptr = cJSON_ParseWithOpts(get_user_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_simplified_user(cJSON_user);
   free_function = free_simplified_user;
 }
 
 Test(cJSON_to_followers, creates_followers_structure, .fini = teardown) {
-  cJSON *cJSON_followers = cjson_ptr = cJSON_Parse(get_followers_json());
+  cJSON *cJSON_followers = cjson_ptr = 
+    cJSON_ParseWithOpts(get_followers_json(), 0, 0);
 
   Followers followers = type_struct_ptr = cJSON_to_followers(cJSON_followers);
   cr_expect(followers != NULL, "Expected followers structures to be created");
@@ -358,14 +367,15 @@ Test(cJSON_to_followers, creates_followers_structure, .fini = teardown) {
 
 Test(cJSON_to_followers, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_restrictions = cjson_ptr = cJSON_Parse(get_restrictions_json());
+  cJSON *cJSON_restrictions = cjson_ptr = 
+    cJSON_ParseWithOpts(get_restrictions_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_followers(cJSON_restrictions);
   free_function = free_followers;
 }
 
 Test(cJSON_to_page, creates_page_structure, .fini = teardown) {
-  cJSON *cJSON_page = cjson_ptr = cJSON_Parse(get_page_json());
+  cJSON *cJSON_page = cjson_ptr = cJSON_ParseWithOpts(get_page_json(), 0, 0);
 
   Page page = type_struct_ptr = cJSON_to_page(cJSON_page, NULL);
   cr_expect(eq(str, page->href, HREF),
@@ -376,14 +386,17 @@ Test(cJSON_to_page, creates_page_structure, .fini = teardown) {
 
 Test(cJSON_to_page, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_search = cjson_ptr = cJSON_Parse(get_search_json());
+  cJSON *cJSON_search = cjson_ptr = 
+    cJSON_ParseWithOpts(get_search_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_page(cJSON_search, NULL);
   free_function = free_page;
 }
 
 Test(cJSON_to_restrictions, creates_restrictions_structure, .fini = teardown) {
-  cJSON *cJSON_restrictions = cjson_ptr = cJSON_Parse(get_restrictions_json());
+  cJSON *cJSON_restrictions = cjson_ptr = 
+    cJSON_ParseWithOpts(get_restrictions_json(),
+  0, 0);
 
   Restrictions restrictions = type_struct_ptr = 
     cJSON_to_restrictions(cJSON_restrictions);
@@ -394,14 +407,16 @@ Test(cJSON_to_restrictions, creates_restrictions_structure, .fini = teardown) {
 
 Test(cJSON_to_restrictions, terminates_program_when_given_invalid_data,
      .exit_code = EXIT_FAILURE, .fini = teardown) {
-  cJSON *cJSON_followers = cjson_ptr = cJSON_Parse(get_followers_json());
+  cJSON *cJSON_followers = cjson_ptr = 
+    cJSON_ParseWithOpts(get_followers_json(), 0, 0);
 
   type_struct_ptr = cJSON_to_restrictions(cJSON_followers);
   free_function = free_restrictions;
 }
 
 Test(cJSON_to_search, creates_search_structure, .fini = teardown) {
-  cJSON *cJSON_search = cjson_ptr = cJSON_Parse(get_search_json());
+  cJSON *cJSON_search = cjson_ptr = 
+    cJSON_ParseWithOpts(get_search_json(), 0, 0);
 
   Search search = type_struct_ptr = cJSON_to_search(cJSON_search);
   cr_expect(eq(str, search->tracks->href, HREF),
@@ -413,7 +428,7 @@ Test(cJSON_to_search, creates_search_structure, .fini = teardown) {
 
 Test(cJSON_to_search, terminates_program_when_given_invalid_data, 
      .fini = teardown) {
-  cJSON *cJSON_page = cjson_ptr = cJSON_Parse(get_page_json());
+  cJSON *cJSON_page = cjson_ptr = cJSON_ParseWithOpts(get_page_json(), 0, 0);
   
   type_struct_ptr = cJSON_to_search(cJSON_page);
   free_function = free_search;
