@@ -60,7 +60,7 @@ Test(cJSON_to_array, creates_array_of_content, .fini = teardown) {
 
   User *users = type_struct_ptr = 
     cJSON_to_array(cJSON_array, cJSON_to_user);
-  for (User *ptr = users; ptr != NULL; ptr++) {
+  for (User *ptr = users; *ptr != NULL; ptr++) {
     User user = *ptr;
     cr_expect(eq(str, user->display_name, USER_NAME),
               "Expected user's display_name to be %s", USER_NAME);
@@ -107,7 +107,7 @@ Test(cJSON_to_simplified_album, creates_simplified_album_structure,
     type_struct_ptr = cJSON_to_simplified_album(cJSON_simplified_album);
   cr_expect(eq(str, simplified_album->id, ID),
             "Expected simplified album's id to be %s", ID);
-  cr_expect(eq(simplified_album->name, ALBUM_NAME),
+  cr_expect(eq(str, simplified_album->name, ALBUM_NAME),
             "Expect simplified album's name to be %s", ALBUM_NAME);
   free_function = free_simplified_album;
 }
