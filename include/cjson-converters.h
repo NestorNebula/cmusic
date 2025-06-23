@@ -4,6 +4,9 @@
 #include <cjson/cJSON.h>
 #include "types.h"
 
+#define END_IF(condition) if (condition) exit(EXIT_FAILURE)
+#define IS_NULL(ptr) ((ptr) == NULL)
+
 /*
  * cJSON converters:
  * Each "converter" function converts the cJSON tree (cJSON item pointer)

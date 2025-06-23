@@ -4,9 +4,6 @@
 #include "tmem.h"
 #include "cjson-converters.h"
 
-#define END_IF(condition) if (condition) exit(EXIT_FAILURE)
-#define IS_NULL(ptr) ((ptr) == NULL)
-
 #define cJSON_to_number(cJSON_number) ((cJSON_number)->valueint)
 
 /*
