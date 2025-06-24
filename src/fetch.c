@@ -56,16 +56,15 @@ cJSON *fetch(string url, string method, string body) {
 
 static size_t curl_cb(void *contents, size_t size, size_t nmemb, 
                       void *res_ptr) {
-  struct response res = *((Response) res_ptr);
+  Response res = (struct response *) res_ptr;
 
   size_t total_size = size * nmemb;
-  string resized_content = realloc(res.content, res.size + total_size + 1);
+  string resized_content = realloc(res->content, res->size + total_size + 1);
   if (resized_content == NULL) return 0;
-  res.content = resized_content;
+  res->content = resized_content;
 
-  memcpy(res.content + res.size, contents, total_size);
-  res.size += total_size;
-  res.content[res.size] = '\0';
+  memcpy(res->content + res->size, contents, total_size);
+  res->size += total_size;
 
   return total_size;
 }
@@ -95,7 +94,7 @@ static string call_api(string url, string method, string body) {
       size_t authorization_size =
         strlen("Authorization: Bearer ") + strlen(token) + 1;
       char authorization_str[authorization_size];
-      strcat(authorization_str, "Authorization: Bearer ");
+      strcpy(authorization_str, "Authorization: Bearer ");
       strcat(authorization_str, token);
       list = curl_slist_append(list, authorization_str);
       curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
