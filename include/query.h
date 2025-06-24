@@ -139,8 +139,8 @@ Playlist query_post_playlist(User user, Playlist playlist);
  * query_get_playlists and query_get_tracks with the same parameters,
  * but only querying the API once.
  */
-Search query_get_all(string album, string artist, string playlist,
-                     string track, string year, string genre,
+Search query_get_all(string search_query, string album, string artist, 
+                     string playlist, string track, string year, string genre,
                      bool new, bool hipster, size_t offset);
 
 /*
