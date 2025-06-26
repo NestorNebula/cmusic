@@ -29,9 +29,9 @@
  * of the format string). str is then set to the new string.
  */
 #define extend_string(str, format, ...) \
- string __new_extended_string = create_string(format, __VA_ARGS__); \
+ string _new_extended_string = create_string(format, __VA_ARGS__); \
  free(str); \
- str = __new_extended_string;
+ str = _new_extended_string;
 
 /*
  * create_string:
