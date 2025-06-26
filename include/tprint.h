@@ -19,6 +19,14 @@
  * type expected by the print_item function.
  */
 #define print_array(array, print_item) \
+  fprintf(print_stream, "\n"); \
+  if (array != NULL) { \
+    for (int i = 0; array[i] != NULL; i++) { \
+      fprintf(print_stream, "(%d) ", i + 1); \
+      print_item(array[i]); \
+    } \
+  } \
+  fprintf(print_stream, "\n");
 
 
 /*
