@@ -6,32 +6,20 @@
 
 /*
  * Type Structures Printers functions:
- * The printers wrappers are implemented as function-like macros to allow types
- * that have many properties in common to call the same function-like macro.
- * Each type has "reals" function "print details" and "print essentials",
- * called by the function-like macros depending on the values of their
- * arguments.
+ * Each type has two printers functions, a "details" printer that will
+ * print many informations about the data and an "essentials" printer
+ * that will only print a few informations about it.
  */
 
 /*
  * print_array:
  * Prints array as a list with a number as index (one-indexed) for each item.
- * Prints each array item by calling item_printer with with_details and
- * is_simplified as arguments.
+ * Prints each array item by calling print_item.
  * Expects a null terminated array as first argument. The array's items must have a
- * type expected by the item_printer function.
+ * type expected by the print_item function.
  */
-#define print_array(array, item_printer, with_details, is_simplified) \
+#define print_array(array, print_item) \
 
-
-/*
- * print_album:
- * Calls print_album_details, print_album_essentials,
- * print_simplified_album_details or print_simplified_album_essentials
- * depending on the values of with_details and is_simplified.
- * Expects an Album or SimplifiedAlbum argument.
- */
-#define print_album(album, with_details, is_simplified) \
 
 /*
  * print_album_details:
@@ -58,14 +46,6 @@ void print_simplified_album_details(SimplifiedAlbum simplified_album);
 void print_simplified_album_essentials(SimplifiedAlbum simplified_album);
 
 
-/*
- * print_artist:
- * Calls print_artist_details, print_artist_essentials,
- * print_simplified_artist_details or print_simplified_artist_essentials
- * depending on the values of with_details and is_simplified.
- * Expects an Artist or SimplifiedArtist argument.
- */
-#define print_artist(artist, with_details, is_simplified) \
 
 /*
  * print_artist_details:
@@ -91,15 +71,6 @@ void print_simplified_artist_details(SimplifiedArtist simplified_artist);
  */
 void print_simplified_artist_essentials(SimplifiedArtist simplified_artist);
 
-
-/*
- * print_playlist:
- * Calls print_playlist_details, print_playlist_essentials,
- * print_simplified_playlist_details or print_simplified_playlist_essentials
- * depending on the values of with_details and is_simplified.
- * Expects a Playlist or SimplifiedPlaylist argument.
- */
-#define print_playlist(playlist, with_details, is_simplified) \
 
 /*
  * print_playlist_details:
@@ -128,15 +99,6 @@ void print_simplified_playlist_essentials(SimplifiedPlaylist
 
 
 /*
- * print_track:
- * Calls print_track_details, print_track_essentials,
- * print_simplified_track_details or print_simplified_track_essentials
- * depending on the values of with_details and is_simplified.
- * Expects a Track or SimplifiedTrack argument.
- */
-#define print_track(track) \
-
-/*
  * print_track_details:
  * Prints track with detailed informations.
  */
@@ -160,15 +122,6 @@ void print_simplified_track_details(SimplifiedTrack simplified_track);
  */
 void print_simplified_track_essentials(SimplifiedTrack simplified_track);
 
-
-/*
- * print_user:
- * Calls print_user_details, print_user_essentials,
- * print_simplified_user_details or print_simplified_user_essentials depending
- * on tha values of with_details and is_simplified.
- * Expects a User or SimplifiedUser argument.
- */
-#define print_user(user, with_details, is_simplified) \
 
 /*
  * print_user_details:
