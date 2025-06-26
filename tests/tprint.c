@@ -44,7 +44,7 @@ Test(print_array, prints_every_item, .init = setup, .fini = teardown) {
     add_item(ptr_array, simplified_album);
   }
   
-  print_array(get_array(ptr_array), print_album, false, false);
+  print_array(get_array(ptr_array), print_simplified_album_essentials);
   get_printed_content();
   string previous_search = NULL;
   for (int i = 0; i < ITEM_COUNT; i++) {
@@ -59,12 +59,13 @@ Test(print_array, prints_every_item, .init = setup, .fini = teardown) {
   free_ptr_array(ptr_array, true, free_simplified_album);
 }
 
-Test(print_album, prints_details, .init = setup, .fini = teardown) {
+Test(print_album_details, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Album album = talloc(new_album);
   album->name = create_string(NAME);
   album->release_date = create_string(DATE);
 
-  print_album(album, true, false);
+  print_album_details(album);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, album->name))),
             "Expected album's name to be printed");
@@ -74,12 +75,13 @@ Test(print_album, prints_details, .init = setup, .fini = teardown) {
   tfree(free_album, album);
 }
 
-Test(print_album, prints_essentials, .init = setup, .fini = teardown) {
+Test(print_album_essentials, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Album album = talloc(new_album);
   album->name = create_string(NAME);
   album->release_date = create_string(DATE);
 
-  print_album(album, false, false);
+  print_album_essentials(album);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, album->name))),
             "Expected album's name to be printed");
@@ -89,7 +91,8 @@ Test(print_album, prints_essentials, .init = setup, .fini = teardown) {
   tfree(free_album, album);
 }
 
-Test(print_artist, prints_details, .init = setup, .fini = teardown) {
+Test(print_artist_details, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Artist artist = talloc(new_artist);
   PtrArray ptr_array = new_ptr_array();
   for (int i = 0; i < ITEM_COUNT; i++) {
@@ -97,8 +100,9 @@ Test(print_artist, prints_details, .init = setup, .fini = teardown) {
   }
   artist->genres = (string *) get_array(ptr_array);
   artist->name = create_string(NAME);
+  artist->followers = talloc(new_followers);
 
-  print_artist(artist, true, false);
+  print_artist_details(artist);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, "Followers"))),
             "Expected artist's followers count to be printed");
@@ -113,11 +117,12 @@ Test(print_artist, prints_details, .init = setup, .fini = teardown) {
   tfree(free_artist, artist);
 }
 
-Test(print_artist, prints_essentials, .init = setup, .fini = teardown) {
+Test(print_artist_essentials, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Artist artist = talloc(new_artist);
   artist->name = create_string(NAME);
 
-  print_artist(artist, false, false);
+  print_artist_essentials(artist);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, artist->name))),
             "Expected artist's name to be printed");
@@ -127,14 +132,15 @@ Test(print_artist, prints_essentials, .init = setup, .fini = teardown) {
   tfree(free_artist, artist);
 }
 
-Test(print_playlist, prints_details, .init = setup, .fini = teardown) {
+Test(print_playlist_details, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Playlist playlist = talloc(new_playlist);
   playlist->description = create_string(DESCRIPTION);
   playlist->name = create_string(NAME);
   playlist->owner = talloc(new_simplified_user);
   playlist->owner->display_name = create_string(USER_NAME);
 
-  print_playlist(playlist, true, false);
+  print_playlist_details(playlist);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, playlist->description))),
             "Expected playlist's description to be printed");
@@ -147,12 +153,13 @@ Test(print_playlist, prints_details, .init = setup, .fini = teardown) {
   tfree(free_playlist, playlist);
 }
 
-Test(print_playlist, prints_essentials, .init = setup, .fini = teardown) {
+Test(print_playlist_essentials, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Playlist playlist = talloc(new_playlist);
   playlist->description = create_string(DESCRIPTION);
   playlist->name = create_string(NAME);
 
-  print_playlist(playlist, false, false);
+  print_playlist_essentials(playlist);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, playlist->name))),
             "Expected playlist's name to be printed");
@@ -162,11 +169,12 @@ Test(print_playlist, prints_essentials, .init = setup, .fini = teardown) {
   tfree(free_playlist, playlist);
 }
 
-Test(print_track, prints_details, .init = setup, .fini = teardown) {
+Test(print_track_details, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Track track = talloc(new_track);
   track->name = create_string(NAME);
   
-  print_track(track, true, false);
+  print_track_details(track);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, track->name))),
             "Expected track's name to be printed");
@@ -176,11 +184,12 @@ Test(print_track, prints_details, .init = setup, .fini = teardown) {
   tfree(free_track, track);
 }
 
-Test(print_track, prints_essentials, .init = setup, .fini = teardown) {
+Test(print_track_essentials, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   Track track = talloc(new_track);
   track->name = create_string(NAME);
 
-  print_track(track, false, false);
+  print_track_essentials(track);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, track->name))),
             "Expected track's name to be printed");
@@ -190,11 +199,13 @@ Test(print_track, prints_essentials, .init = setup, .fini = teardown) {
   tfree(free_track, track);
 }
 
-Test(print_user, prints_details, .init = setup, .fini = teardown) {
+Test(print_user_details, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   User user = talloc(new_user);
   user->display_name = create_string(USER_NAME);
+  user->followers = talloc(new_followers);
 
-  print_user(user, true, false);
+  print_user_details(user);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, user->display_name))),
             "Expected user's name to be printed");
@@ -204,11 +215,12 @@ Test(print_user, prints_details, .init = setup, .fini = teardown) {
   tfree(free_user, user);
 }
 
-Test(print_user, prints_essentials, .init = setup, .fini = teardown) {
+Test(print_user_essentials, prints_expected_data, 
+     .init = setup, .fini = teardown) {
   User user = talloc(new_user);
   user->display_name = create_string(USER_NAME);
 
-  print_user(user, false, false);
+  print_user_essentials(user);
   get_printed_content();
   cr_expect(not(IS_NULL(strstr(printed_content, user->display_name))),
             "Expected user's name to be printed");
