@@ -4,7 +4,8 @@
  * read_string:
  * Reads string from stream. Starts at the first non-space character and.
  * stops when meeting a new-line character or end-of-file.
- * Returns the string read, as a dynamically allocated string.
+ * Returns the string read as a dynamically allocated string, or a null pointer
+ * if an error occurred.
  */
 string read_string(FILE *stream);
 
