@@ -5,9 +5,6 @@
 #define MILLION 1000000
 #define THOUSAND 1000
 
-#define print_to_stream(...) fprintf(print_stream, __VA_ARGS__)
-#define print_empty_line() print_to_stream("\n")
-
 
 static void _print_album_details(string name, string release_date,
                                  SimplifiedArtist *artists, 
