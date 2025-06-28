@@ -15,8 +15,6 @@
 
 #define BASE_URL "https://api.spotify.com/v1"
 
-#define LIMIT 20
-
 #define create_uri(type, id) create_string("spotify:%s:%s", type, id)
 
 #define cJSON_HasError(cJSON) \

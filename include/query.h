@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define LIMIT 20
+
 /*
  * Query:
  * This module's functions are wrappers that will fetch the API using
