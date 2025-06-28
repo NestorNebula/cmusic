@@ -17,6 +17,7 @@ string read_string(FILE *stream);
  * If no number could be read, the returned value is undefined, thus, it it
  * important to check that a number was read, using the variable pointed 
  * by success.
+ * Clears the input until the next new line character or EOF.
  */
 int read_integer(FILE *stream, bool *success);
 
@@ -24,5 +25,6 @@ int read_integer(FILE *stream, bool *success);
  * read_bool:
  * Reads stream and returns true if the first non-space character is a y,
  * else returns false.
+ * Clears the input until the next line character or EOF.
  */
 bool read_bool(FILE *stream);
