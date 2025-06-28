@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#define print_to_stream(...) fprintf(print_stream, __VA_ARGS__)
+#define print_empty_line() print_to_stream("\n")
 
 /*
  * Type Structures Printers functions:
@@ -19,14 +21,14 @@
  * type expected by the print_item function.
  */
 #define print_array(array, print_item) \
-  fprintf(print_stream, "\n"); \
+  print_empty_line(); \
   if (array != NULL) { \
     for (int i = 0; array[i] != NULL; i++) { \
-      fprintf(print_stream, "(%d) ", i + 1); \
+      print_to_stream("(%d) ", i + 1); \
       print_item(array[i]); \
     } \
   } \
-  fprintf(print_stream, "\n");
+  print_empty_line();
 
 
 /*
