@@ -37,6 +37,10 @@ int read_integer(FILE *stream, bool *success) {
 
   if (success) *success = fscanf(stream, "%d", &i) == 1;
   else fscanf(stream, "%d", &i);
+  int ch;
+  do {
+    ch = getc(stream);
+  } while (!IS_END_CHAR(ch));
 
   return i;
 }
@@ -44,6 +48,12 @@ int read_integer(FILE *stream, bool *success) {
 bool read_bool(FILE *stream) {
   int ch;
   for (ch = getc(stream); isspace(ch) && !IS_END_CHAR(ch); ch = getc(stream));
+  if (!IS_END_CHAR(ch)) {
+    int c;
+    do {
+      c = getc(stream);
+    } while (!IS_END_CHAR(c));
+  }
   
   return tolower(ch) == 'y';
 }
