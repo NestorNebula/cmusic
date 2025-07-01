@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include "query.h"
 #include "ptrarray.h"
 #include "tmem.h"
@@ -8,6 +9,8 @@
 #include "type-handlers.h"
 
 #define IS_NULL(ptr) (ptr == NULL)
+
+extern User user;
 
 void handle_album(Album album) {
   if (IS_NULL(album)) return;
@@ -236,11 +239,20 @@ void handle_track(Track track) {
     size_t offset = 0;
     bool is_last_page = false;
     do {
+      PtrArray ptr_array = new_ptr_array();
       Page page = query_get_user_playlists(offset);
       is_last_page = page->limit + offset >= page->total;
       SimplifiedPlaylist *playlists = page->items;
+      for (int i = 0; playlists[i] != NULL; i++) {
+        if (!strcmp(playlists[i]->owner->display_name, user->display_name)) {
+          add_item(ptr_array, playlists[i]);
+        }
+      }
 
-      print_array(playlists, print_simplified_playlist_essentials);
+      SimplifiedPlaylist *user_playlists = 
+        (SimplifiedPlaylist *) get_array(ptr_array);
+
+      print_array(user_playlists, print_simplified_playlist_essentials);
       print_to_stream("Enter playlist's number%s ",
                       is_last_page 
                         ? ":"
@@ -250,23 +262,26 @@ void handle_track(Track track) {
       if (success) {
         if (choice == 0) {
           offset += page->limit;
+          free_ptr_array(ptr_array, false, NULL);
           free_array((void **) playlists, free_simplified_playlist);
           tfree(free_page, page);
           continue;
         }
         int count_playlists = 0;
-        while (playlists[count_playlists] != NULL) count_playlists++;
+        while (user_playlists[count_playlists] != NULL) count_playlists++;
         if (choice >= 1 && choice <= count_playlists) {
-          Playlist playlist = query_get_playlist(playlists[choice - 1]->id);
-          PtrArray ptr_array = new_ptr_array();
-          add_item(ptr_array, track);
-          query_post_playlist_tracks(playlist, (Track *) get_array(ptr_array));
+          Playlist playlist = 
+            query_get_playlist(user_playlists[choice - 1]->id);
+          PtrArray tracks_ptr_array = new_ptr_array();
+          add_item(tracks_ptr_array, track);
+          query_post_playlist_tracks(playlist, (Track *) get_array(tracks_ptr_array));
           print_to_stream("Track added to playlist\n");
 
           tfree(free_playlist, playlist);
-          free_ptr_array(ptr_array, false, NULL);
+          free_ptr_array(tracks_ptr_array, false, NULL);
         }
       }
+      free_ptr_array(ptr_array, false, NULL);
       free_array((void **) playlists, free_simplified_playlist);
       tfree(free_page, page);
       break;
