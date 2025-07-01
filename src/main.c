@@ -39,6 +39,13 @@ void search(void);
  */
 void handle_user_playlists(SimplifiedPlaylist *playlists);
 
+/*
+ * handle_followed:
+ * Offers the possibility to unfollow followed artists/playlist or to learn
+ * more about them.
+ */
+void handle_followed(Artist *artists, SimplifiedPlaylist *playlists);
+
 int main(int argc, char **argv) {
   print_stream = stdout;
 
@@ -52,37 +59,70 @@ int main(int argc, char **argv) {
 
   print_to_stream("\nHello %s!\n", user->display_name);
 
+  PtrArray owned_playlists_ptr_array = new_ptr_array();
+  PtrArray followed_playlists_ptr_array = new_ptr_array();
+
+  int playlists_count = 0;
   for (;;) {
-    int option = handle_option_choice(2, "Search in catalog", 
-                                      "Manage Playlists");
+    Page page = query_get_user_playlists(playlists_count);
+    SimplifiedPlaylist *playlists = page->items;
+    for (int i = 0; !IS_NULL(playlists[i]); i++) {
+      if (!strcmp(playlists[i]->owner->display_name, user->display_name)) {
+        add_item(owned_playlists_ptr_array, playlists[i]);
+      } else add_item(followed_playlists_ptr_array, playlists[i]);
+      playlists_count++;
+    }
+    if (playlists_count >= page->total) {
+      tfree(free_page, page);
+      break;
+    }
+    tfree(free_page, page);
+  }
+
+  PtrArray artists_ptr_array = new_ptr_array();
+  int artists_count = 0;
+  string previous = NULL;
+  for (;;) {
+    Page page = query_get_followed_artists(previous);
+    Artist *artists = page->items;
+    for (int i = 0; !IS_NULL(artists[i]); i++) {
+      add_item(artists_ptr_array, artists[i]);
+      artists_count++;
+      previous = artists[i]->id;
+    }
+    if (artists_count >= page->total) {
+      tfree(free_page, page);
+      break;
+    }
+    tfree(free_page, page);
+  }
+
+  for (;;) {
+    int option = handle_option_choice(3, "Search in catalog", 
+                                      "Manage Playlists",
+                                      "Manage followed Artists/Playlists");
 
     if (option == 0) {
       search();
     } else if (option == 1) {
-      PtrArray ptr_array = new_ptr_array();
-      int playlists_count = 0;
-      for (;;) {
-        Page page = query_get_user_playlists(playlists_count);
-        SimplifiedPlaylist *playlists = page->items;
-        for (int i = 0; !IS_NULL(playlists[i]); i++) {
-          if (!strcmp(playlists[i]->owner->display_name, user->display_name)) {
-            add_item(ptr_array, playlists[i]);
-          } else tfree(free_simplified_playlist, playlists[i]);
-          playlists_count++;
-        }
-        tfree(free_page, page);
-        if (playlists_count >= page->total) break;
-      }
-
-      if (get_size(ptr_array)) {
-        handle_user_playlists((SimplifiedPlaylist *) get_array(ptr_array));
+      if (get_size(owned_playlists_ptr_array)) {
+        handle_user_playlists((SimplifiedPlaylist *)
+                                get_array(owned_playlists_ptr_array));
       } else {
         print_to_stream("\nNo playlist to manage\n");
       }
 
-      free_ptr_array(ptr_array, true, free_simplified_playlist);
-    } else exit(EXIT_SUCCESS);
+    } else if (option == 2) {
+      handle_followed((Artist *) get_array(artists_ptr_array), 
+                      (SimplifiedPlaylist *)
+                        get_array(followed_playlists_ptr_array));
+    } else break;
   }
+    
+  free_ptr_array(owned_playlists_ptr_array, true, free_simplified_playlist);
+  free_ptr_array(followed_playlists_ptr_array, true, free_simplified_playlist);
+  free_ptr_array(artists_ptr_array, true, free_artist);
+  tfree(free_user, user);
 }
 
 
@@ -399,5 +439,53 @@ void handle_user_playlists(SimplifiedPlaylist *playlists) {
     } 
 
     tfree(free_playlist, playlist);
+  }
+}
+
+void handle_followed(Artist *artists, SimplifiedPlaylist *playlists) {
+  int artists_count = 0;
+  while (!IS_NULL(artists[artists_count])) artists_count++;
+  int playlists_count = 0;
+  while (!IS_NULL(playlists[playlists_count])) playlists_count++;
+  for (;;) {
+    int option = handle_option_choice(4, "Unfollow artist", 
+                                      "Unfollow playlist",
+                                      "Learn more about followed artists",
+                                      "Learn more about folllowed playlists");
+
+    if (option == 0 || option == 2) {
+      if (artists_count) {
+        print_array(artists, print_artist_essentials);
+        print_to_stream("Enter artist's number: ");
+        bool success = false;
+        int choice = read_integer(stdin, &success);
+        if (success && choice >= 1 && choice <= artists_count) {
+          if (option  == 0) {
+            PtrArray artists_to_unfollow_ptr_array = new_ptr_array();
+            add_item(artists_to_unfollow_ptr_array, artists[choice - 1]);
+            query_delete_unfollow_artists(
+              (Artist *) get_array(artists_to_unfollow_ptr_array));
+            print_to_stream("\nArtist unfollowed\n");
+            free_ptr_array(artists_to_unfollow_ptr_array, false, NULL);
+          }
+          else handle_artist(artists[choice - 1]);
+        }
+      } else print_to_stream("\nNo followed artist\n");
+    } else if (option == 1 || option == 3) {
+      if (playlists_count) {
+        print_array(playlists, print_simplified_playlist_essentials);
+        print_to_stream("Enter playlist's number: ");
+        bool success = false;
+        int choice = read_integer(stdin, &success);
+        if (success && choice >= 1 && choice <= playlists_count) {
+          Playlist playlist = query_get_playlist(playlists[choice - 1]->id);
+          if (option == 1) {
+            query_delete_unfollow_playlist(playlist);
+            print_to_stream("\nPlaylist Unfollowed\n");
+          } else handle_playlist(playlist);
+          tfree(free_playlist, playlist);
+        }
+      } else print_to_stream("\nNo followed playlist\n");
+    } else break;
   }
 }
