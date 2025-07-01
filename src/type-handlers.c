@@ -11,6 +11,10 @@
 
 #define IS_NULL(ptr) (ptr == NULL)
 
+extern SimplifiedPlaylist *owned_playlists,
+                          *followed_playlists;
+extern Artist *followed_artists;
+
 void handle_album(Album album) {
   if (IS_NULL(album)) return;
   if (!IS_NULL(album->restrictions)) {
@@ -107,6 +111,7 @@ void handle_artist(Artist artist) {
     add_item(ptr_array, artist);
 
     query_put_follow_artists((Artist *) get_array(ptr_array));
+    update_followed_artists();
 
     free_ptr_array(ptr_array, false, NULL);
   } else if (option == 1) {
@@ -167,6 +172,7 @@ void handle_playlist(Playlist playlist) {
 
   if (option == 0) {
     query_put_follow_playlist(playlist);
+    update_playlists();
     print_to_stream("\nPlaylist Followed\n");
   } else if (option == 1) {
     bool is_last_page = false;
@@ -235,56 +241,26 @@ void handle_track(Track track) {
                                     "Learn more about one of the artists");
 
   if (option == 0) {
-    size_t offset = 0;
-    bool is_last_page = false;
-    do {
-      PtrArray ptr_array = new_ptr_array();
-      Page page = query_get_user_playlists(offset);
-      is_last_page = page->limit + offset >= page->total;
-      SimplifiedPlaylist *playlists = page->items;
-      for (int i = 0; playlists[i] != NULL; i++) {
-        if (!strcmp(playlists[i]->owner->display_name, user->display_name)) {
-          add_item(ptr_array, playlists[i]);
-        }
+    print_array(owned_playlists, print_simplified_playlist_essentials);
+    print_to_stream("Enter playlist's number: ");
+    bool success;
+    int choice = read_integer(stdin, &success);
+    if (success) {
+      int count_playlists = 0;
+      while (owned_playlists[count_playlists] != NULL) count_playlists++;
+      if (choice >= 1 && choice <= count_playlists) {
+        Playlist playlist = 
+          query_get_playlist(owned_playlists[choice - 1]->id);
+        PtrArray ptr_array = new_ptr_array();
+        add_item(ptr_array, track);
+        query_post_playlist_tracks(playlist, (Track *) get_array(ptr_array));
+        print_to_stream("\nTrack added to playlist\n");
+        update_playlists();
+
+        tfree(free_playlist, playlist);
+        free_ptr_array(ptr_array, false, NULL);
       }
-
-      SimplifiedPlaylist *user_playlists = 
-        (SimplifiedPlaylist *) get_array(ptr_array);
-
-      print_array(user_playlists, print_simplified_playlist_essentials);
-      print_to_stream("Enter playlist's number%s ",
-                      is_last_page 
-                        ? ":"
-                        : " (0 to get other playlists)");
-      bool success;
-      int choice = read_integer(stdin, &success);
-      if (success) {
-        if (choice == 0) {
-          offset += page->limit;
-          free_ptr_array(ptr_array, false, NULL);
-          free_array((void **) playlists, free_simplified_playlist);
-          tfree(free_page, page);
-          continue;
-        }
-        int count_playlists = 0;
-        while (user_playlists[count_playlists] != NULL) count_playlists++;
-        if (choice >= 1 && choice <= count_playlists) {
-          Playlist playlist = 
-            query_get_playlist(user_playlists[choice - 1]->id);
-          PtrArray tracks_ptr_array = new_ptr_array();
-          add_item(tracks_ptr_array, track);
-          query_post_playlist_tracks(playlist, (Track *) get_array(tracks_ptr_array));
-          print_to_stream("Track added to playlist\n");
-
-          tfree(free_playlist, playlist);
-          free_ptr_array(tracks_ptr_array, false, NULL);
-        }
-      }
-      free_ptr_array(ptr_array, false, NULL);
-      free_array((void **) playlists, free_simplified_playlist);
-      tfree(free_page, page);
-      break;
-    } while (!is_last_page);
+    }
   } else if (option == 1) {
     Album album = query_get_album(track->album->id);
     handle_album(album);
