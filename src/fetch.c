@@ -48,6 +48,8 @@ static size_t curl_cb(void *contents, size_t size, size_t nmemb,
 static string call_api(string url, string method, string body);
 
 cJSON *fetch(string url, string method, string body) {
+  char *space;
+  while ((space = strchr(url, ' ')) != NULL) *space = '+';
   string json_res = call_api(url, method, body);
   cJSON *res = cJSON_Parse(json_res);
   free(json_res);
@@ -97,6 +99,7 @@ static string call_api(string url, string method, string body) {
       strcpy(authorization_str, "Authorization: Bearer ");
       strcat(authorization_str, token);
       list = curl_slist_append(list, authorization_str);
+
       curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
     }
 
@@ -112,6 +115,10 @@ static string call_api(string url, string method, string body) {
       curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
     } else {
       curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method);
+    }
+
+    if (IS_POST(method) || IS_PUT(method)) {
+      curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, 0);
     }
 
     rc = curl_easy_perform(curl);
