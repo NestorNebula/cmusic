@@ -100,6 +100,10 @@ static string call_api(string url, string method, string body) {
       strcat(authorization_str, token);
       list = curl_slist_append(list, authorization_str);
 
+      if (body) {
+        list = curl_slist_append(list, "Content-Type: application/json");
+      }
+
       curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
     }
 
@@ -112,7 +116,7 @@ static string call_api(string url, string method, string body) {
     } else if (IS_POST(method)) {
       curl_easy_setopt(curl, CURLOPT_POST, 1L);
     } else if (IS_PUT(method)) {
-      curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+      curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method);
     } else {
       curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method);
     }
