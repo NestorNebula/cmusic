@@ -1,3 +1,6 @@
+#ifndef TYPE_HANDLERS_H
+#define TYPE_HANDLERS_H
+
 #include "types.h"
 
 /*
@@ -38,9 +41,4 @@ void handle_playlist(Playlist playlist);
  */
 void handle_track(Track track);
 
-/*
- * Prints options_count options provided as arguments.
- * Prompts the user to choose an option. Returns the index of the selected
- * option if the index is valid, else returns -1.
- */
-int handle_option_choice(size_t options_count, ...);
+#endif

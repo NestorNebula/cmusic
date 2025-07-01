@@ -1,3 +1,6 @@
+#ifndef READERS_H
+#define READERS_H
+
 #include "types.h"
 
 /*
@@ -28,3 +31,5 @@ int read_integer(FILE *stream, bool *success);
  * Clears the input until the next line character or EOF.
  */
 bool read_bool(FILE *stream);
+
+#endif
