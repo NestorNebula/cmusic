@@ -256,9 +256,11 @@ void query_delete_unfollow_playlist(Playlist playlist);
 /*
  * query_get_followed_artists:
  * Queries the API for user's followed artists.
+ * If after isn't null, returns artists that comes after
+ * the artist's whose id corresponds to after.
  * Returns the artists as a page structure.
  */
-Page query_get_followed_artists(void);
+Page query_get_followed_artists(string after);
 
 /*
  * query_put_follow_artists:

@@ -585,17 +585,22 @@ void query_delete_unfollow_playlist(Playlist playlist) {
   cJSON_Delete(cJSON_res);
 }
 
-Page query_get_followed_artists(void) {
-  string url = create_string("%s/me/following?type=artist&limit=%u",
-                             BASE_URL, LIMIT);
+Page query_get_followed_artists(string after) {
+  string url = create_string("%s/me/following?type=artist", BASE_URL);
+  if (!IS_NULL(after)) {
+    extend_string(url, "%s&after=%s", url, after);
+  }
+  extend_string(url, "%s&limit=%u", url, LIMIT);
   cJSON *cJSON_followed_artists = fetch(url, GET, NULL);
+  cJSON *cJSON_followed_artists_page =
+    cJSON_GetObjectItemCaseSensitive(cJSON_followed_artists, "artists");
   free(url);
   if (cJSON_HasError(cJSON_followed_artists)) {
     cJSON_Delete(cJSON_followed_artists);
     return NULL;
   }
 
-  Page followed_artists = cJSON_to_page(cJSON_followed_artists,
+  Page followed_artists = cJSON_to_page(cJSON_followed_artists_page,
                                         cJSON_to_artist);
   cJSON_Delete(cJSON_followed_artists);
 
