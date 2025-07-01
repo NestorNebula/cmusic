@@ -7,6 +7,7 @@
 #include "query.h"
 #include "tprint.h"
 #include "readers.h"
+#include "ptrarray.h"
 
 #define IS_NULL(ptr) (ptr == NULL)
 #define IS_EMPTY(str) (str[0] == '\0')
@@ -31,6 +32,13 @@ void handle_user_connection(void);
  */
 void search(void);
 
+/*
+ * handle_user_playlists:
+ * Offers the possibility to update playlists' details, learn more about their
+ * tracks and remove them.
+ */
+void handle_user_playlists(SimplifiedPlaylist *playlists);
+
 int main(int argc, char **argv) {
   print_stream = stdout;
 
@@ -45,15 +53,35 @@ int main(int argc, char **argv) {
   print_to_stream("\nHello %s!\n", user->display_name);
 
   for (;;) {
-    int option = handle_option_choice(1, "Search in catalog");
+    int option = handle_option_choice(2, "Search in catalog", 
+                                      "Manage Playlists");
 
-    switch (option) {
-      case 0:
-        search();
-        break;
-      default:
-        exit(EXIT_SUCCESS);
-    }
+    if (option == 0) {
+      search();
+    } else if (option == 1) {
+      PtrArray ptr_array = new_ptr_array();
+      int playlists_count = 0;
+      for (;;) {
+        Page page = query_get_user_playlists(playlists_count);
+        SimplifiedPlaylist *playlists = page->items;
+        for (int i = 0; !IS_NULL(playlists[i]); i++) {
+          if (!strcmp(playlists[i]->owner->display_name, user->display_name)) {
+            add_item(ptr_array, playlists[i]);
+          } else tfree(free_simplified_playlist, playlists[i]);
+          playlists_count++;
+        }
+        tfree(free_page, page);
+        if (playlists_count >= page->total) break;
+      }
+
+      if (get_size(ptr_array)) {
+        handle_user_playlists((SimplifiedPlaylist *) get_array(ptr_array));
+      } else {
+        print_to_stream("\nNo playlist to manage\n");
+      }
+
+      free_ptr_array(ptr_array, true, free_simplified_playlist);
+    } else exit(EXIT_SUCCESS);
   }
 }
 
@@ -262,5 +290,114 @@ void search(void) {
     free(year);
     free(album);
     free(genre);
+  }
+}
+
+void handle_user_playlists(SimplifiedPlaylist *playlists) {
+  int playlists_count = 0;
+  while (!IS_NULL(playlists[playlists_count])) playlists_count++;
+  for (;;) {
+    print_array(playlists, print_simplified_playlist_essentials);
+    print_to_stream("Enter the number of the playlist you want to manage: ");
+    bool success = false;
+    int choice = read_integer(stdin, &success);
+
+    if (!success || choice < 1 || choice > playlists_count) break;
+    Playlist playlist = query_get_playlist(playlists[choice - 1]->id);
+
+    int option = handle_option_choice(3, "Update playlist's details",
+                                      "Remove tracks from playlist",
+                                      "Learn more about tracks");
+
+    if (option == 0) {
+      print_to_stream("Enter playlist's name: ");
+      if (!IS_EMPTY(playlist->name)) {
+        print_to_stream("(%s) ", playlist->name);
+      }
+      string new_name = read_string(stdin);
+      if (!IS_EMPTY(new_name)) {
+        free(playlist->name);
+        playlist->name = new_name;
+      } else free(new_name);
+      print_to_stream("Enter playlist's description: ");
+      if (!IS_EMPTY(playlist->description)) {
+        print_to_stream("(%s) ", playlist->description);
+      }
+      string new_description = read_string(stdin);
+      if (!IS_EMPTY(new_description)) {
+        free(playlist->description);
+        playlist->description = new_description;
+      } else free(new_description);
+      
+      query_put_playlist_details(playlist);
+      print_to_stream("\nPlaylist updated\n");
+      tfree(free_playlist, playlist);
+      break;
+    } else if (option == 1 || option == 2) {
+      PtrArray ptr_array = new_ptr_array();
+      size_t offset = 0;
+      int tracks_count = 0;
+      for (;;) {
+        Page page = !offset
+          ? playlist->tracks
+          : query_get_playlist_tracks(playlist->id, offset);
+        PlaylistTrack *playlist_tracks = page->items;
+        for (int i = 0; !IS_NULL(playlist_tracks[i]); i++) {
+          add_item(ptr_array, playlist_tracks[i]->track);
+          tracks_count++;
+        }
+        if (offset) {
+          free_array((void **) playlist_tracks, free_playlist_track);
+          tfree(free_page, page);
+        }
+        offset = tracks_count;
+        if (tracks_count >= page->total) break;
+      }
+      Track *tracks = (Track *) get_array(ptr_array);
+
+      if (option == 1) {
+        PtrArray tracks_to_delete_ptr_array = new_ptr_array();
+        for (;;) {
+          print_array(tracks, print_track_essentials);
+          print_to_stream("Enter track to remove's number: ");
+          bool succcess = false;
+          int choice = read_integer(stdin, &success);
+          if (choice < 1 || choice > tracks_count) break;
+          add_item(tracks_to_delete_ptr_array, tracks[choice - 1]);
+          print_to_stream("Remove another track ? (y/n) ");
+          if (!read_bool(stdin)) break;
+        }
+        size_t tracks_to_delete_count = get_size(tracks_to_delete_ptr_array);
+        if (tracks_to_delete_count) {
+          print_to_stream("You are about to remove %zu track%s from \"%s\" "
+                          "playlist. Confirm ? (y/n) ", tracks_to_delete_count,
+                          tracks_to_delete_count > 1 ? "s" : "", 
+                          playlist->name);
+          if (read_bool(stdin)) {
+            query_delete_playlist_tracks(
+              playlist, 
+              (Track *) get_array(tracks_to_delete_ptr_array));
+          }
+        }
+        free_ptr_array(tracks_to_delete_ptr_array, false, NULL);
+        tfree(free_playlist, playlist);
+        break;
+      } else {
+        print_array(tracks, print_track_essentials);
+        print_to_stream("Enter track's number: ");
+        bool success = false;
+        int choice = read_integer(stdin, &success);
+        if (choice >= 1 && choice <= tracks_count) {
+          handle_track(tracks[choice - 1]);
+        }
+      }
+
+      if (playlist->tracks->total > playlist->tracks->limit) {
+        free_array(get_array(ptr_array) + playlist->tracks->limit, free_track);
+      }
+      free_ptr_array(ptr_array, false, NULL);
+    } 
+
+    tfree(free_playlist, playlist);
   }
 }
