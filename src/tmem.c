@@ -187,7 +187,7 @@ void free_album(void *album_ptr) {
   free_restrictions(album->restrictions);
   free_array((void **) album->artists, free_simplified_artist);
   IF_NOT_NULL(album->tracks) {
-    free_array(album->tracks->items, free_track);
+    free_array(album->tracks->items, free_simplified_track);
     free_page(album->tracks);
   }
   free_all(album->album_type, album->id, album->name, 
@@ -231,7 +231,7 @@ void free_playlist(void *playlist_ptr) {
   Playlist playlist = playlist_ptr;
   free_simplified_user(playlist->owner);
   IF_NOT_NULL(playlist->tracks) {
-    free_array(playlist->tracks->items, free_track);
+    free_array(playlist->tracks->items, free_playlist_track);
     free_page(playlist->tracks);
   }
   free_all(playlist->description, playlist->id, playlist->name,
@@ -324,11 +324,11 @@ void free_search(void *search_ptr) {
     free_page(search->artists);
   }
   IF_NOT_NULL(search->albums) {
-    free_array(search->albums->items, free_album);
+    free_array(search->albums->items, free_simplified_album);
     free_page(search->albums);
   }
   IF_NOT_NULL(search->playlists) {
-    free_array(search->playlists->items, free_playlist);
+    free_array(search->playlists->items, free_simplified_playlist);
     free_page(search->playlists);
   }
   free(search);
