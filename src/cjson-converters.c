@@ -32,7 +32,11 @@ void **cJSON_to_array(cJSON *cJSON_array,
   cJSON *cJSON_item = NULL;
   int i = 0;
   cJSON_ArrayForEach(cJSON_item, cJSON_array) {
-    END_IF(add_item(ptr_array, cJSON_to_item_type(cJSON_item)) != ++i);
+    if (cJSON_IsNull(cJSON_item)) continue;
+    void *item = cJSON_to_item_type(cJSON_item);
+    if (item != NULL) {
+      END_IF(add_item(ptr_array, item) != ++i);
+    }
   }
   void **array = get_array(ptr_array);
   free_ptr_array(ptr_array, false, NULL);
@@ -278,6 +282,9 @@ void *cJSON_to_playlist_track(cJSON *cJSON_playlist_track) {
   *cJSON_added_by_id =
     get_cJSON_item_safe(cJSON_added_by, "id", cJSON_IsString);
 
+  if (cJSON_GetObjectItemCaseSensitive(cJSON_track, "album")) {
+    playlist_track->track = cJSON_to_track(cJSON_track);
+  } else return NULL;
   playlist_track->track = cJSON_to_track(cJSON_track);
   playlist_track->added_at = cJSON_to_string(cJSON_added_at);
   playlist_track->added_by.href = cJSON_to_string(cJSON_added_by_href);
@@ -485,7 +492,7 @@ void *cJSON_to_search(cJSON *cJSON_search) {
     : NULL;
 
   search->artists = cJSON_IsObject(cJSON_artists)
-    ? cJSON_to_page(cJSON_tracks, cJSON_to_artist)
+    ? cJSON_to_page(cJSON_artists, cJSON_to_artist)
     : NULL;
 
   search->albums = cJSON_IsObject(cJSON_albums)
