@@ -37,3 +37,10 @@ void handle_playlist(Playlist playlist);
  * playlist and to call handle_album/handle_artist for its album/artists.
  */
 void handle_track(Track track);
+
+/*
+ * Prints options_count options provided as arguments.
+ * Prompts the user to choose an option. Returns the index of the selected
+ * option if the index is valid, else returns -1.
+ */
+int handle_option_choice(size_t options_count, ...);

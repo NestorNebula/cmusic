@@ -9,14 +9,6 @@
 
 #define IS_NULL(ptr) (ptr == NULL)
 
-/*
- * Prints options_count options provided as arguments.
- * Prompts the user to choose an option. Returns the index of the selected
- * option if the index is valid, else returns -1.
- */
-static int handle_option_choice(size_t options_count, ...);
-
-
 void handle_album(Album album) {
   if (IS_NULL(album)) return;
   if (!IS_NULL(album->restrictions)) {
@@ -55,19 +47,47 @@ void handle_album(Album album) {
     handle_artist(artist);
     tfree(free_artist, artist);
   } else if (option == 2) {
-    SimplifiedTrack *items = album->tracks->items;
-    print_array(items,
-                print_simplified_track_essentials);
-    print_to_stream("Enter track's number: ");
-    bool success = false;
-    int choice = read_integer(stdin, &success);
-    if (!success || choice < 1 || choice > album->total_tracks) return;
+    size_t offset = 0;
+    bool is_last_page = false;
+    do {
+      Page page = !offset
+        ? album->tracks
+        : query_get_album_tracks(album->id, offset);
+      is_last_page = page->limit + offset >= page->total;
+      SimplifiedTrack *simplified_tracks = page->items; 
 
-
-    SimplifiedTrack simplified_track = items[choice - 1];
-    Track track = query_get_track(simplified_track->id);
-    handle_track(track);
-    tfree(free_track, track);
+      print_array(simplified_tracks,
+                  print_simplified_track_essentials);
+      print_to_stream("Enter track's number%s ",
+                      is_last_page
+                        ? ":"
+                        : " (0 to get album's other tracks):");
+      bool success = false;
+      int choice = read_integer(stdin, &success);
+      if (success) {
+        if (choice == 0) {
+          if (offset) {
+            free_array((void **) simplified_tracks, free_simplified_track);
+            offset += page->limit;
+            tfree(free_page, page);
+          } else offset += page->limit;
+          continue;
+        }
+        int tracks_count = 0;
+        while (!IS_NULL(simplified_tracks[tracks_count])) tracks_count++;
+        if (choice >= 1 && choice <= tracks_count) {
+          SimplifiedTrack simplified_track = simplified_tracks[choice - 1];
+          Track track = query_get_track(simplified_track->id);
+          handle_track(track);
+          tfree(free_track, track);
+        }
+      }
+      if (offset) {
+        free_array((void **) simplified_tracks, free_simplified_track);
+        tfree(free_page, page);
+      }
+      break;
+    } while (!is_last_page);
   }
 }
 
@@ -103,8 +123,7 @@ void handle_artist(Artist artist) {
       int choice = read_integer(stdin, &success);
       if (success) {
         if (choice == 0) {
-          offset += LIMIT;
-          free_array((void **) simplified_albums, free_simplified_album);
+          offset += page->limit;
           tfree(free_page, page);
           continue;
         }
@@ -116,7 +135,6 @@ void handle_artist(Artist artist) {
           tfree(free_album, album);
         } 
       }
-      free_array((void **) simplified_albums, free_simplified_album);
       tfree(free_page, page);
       break;
     } while (!is_last_page);
@@ -147,6 +165,7 @@ void handle_playlist(Playlist playlist) {
 
   if (option == 0) {
     query_put_follow_playlist(playlist);
+    print_to_stream("\nPlaylist Followed\n");
   } else if (option == 1) {
     bool is_last_page = false;
     size_t offset = 0;
@@ -172,9 +191,11 @@ void handle_playlist(Playlist playlist) {
       int choice = read_integer(stdin, &success);
       if (success) {
         if (choice == 0) {
-          offset += LIMIT;
-          free_array((void **) items, free_playlist_track);
-          tfree(free_page, page);
+          if (offset) {
+            free_array((void **) items, free_playlist_track);
+            offset += page->limit;
+            tfree(free_page, page);
+          } else offset += page->limit;
           continue;
         }
         int count_tracks = 0;
@@ -184,8 +205,11 @@ void handle_playlist(Playlist playlist) {
           handle_track(playlist_track->track);
         }
       }
-      free_array((void **) items, free_playlist_track);
-      tfree(free_page, page);
+      if (offset) {
+        free_array((void **) items, free_playlist_track);
+        tfree(free_page, page);
+      }
+      break;
     } while (!is_last_page);
   }
 }
@@ -225,7 +249,7 @@ void handle_track(Track track) {
       int choice = read_integer(stdin, &success);
       if (success) {
         if (choice == 0) {
-          offset += LIMIT;
+          offset += page->limit;
           free_array((void **) playlists, free_simplified_playlist);
           tfree(free_page, page);
           continue;
@@ -236,7 +260,7 @@ void handle_track(Track track) {
           Playlist playlist = query_get_playlist(playlists[choice - 1]->id);
           PtrArray ptr_array = new_ptr_array();
           add_item(ptr_array, track);
-          query_put_playlist_tracks(playlist, (Track *) get_array(ptr_array));
+          query_post_playlist_tracks(playlist, (Track *) get_array(ptr_array));
           print_to_stream("Track added to playlist\n");
 
           tfree(free_playlist, playlist);
@@ -245,6 +269,7 @@ void handle_track(Track track) {
       }
       free_array((void **) playlists, free_simplified_playlist);
       tfree(free_page, page);
+      break;
     } while (!is_last_page);
   } else if (option == 1) {
     Album album = query_get_album(track->album->id);
@@ -268,18 +293,17 @@ void handle_track(Track track) {
   }
 }
 
-
-static int handle_option_choice(size_t options_count, ...) {
+int handle_option_choice(size_t options_count, ...) {
   va_list ap;
   va_start(ap, options_count);
-  print_to_stream("Available options:\n");
+  print_to_stream("\nAvailable options:\n");
   for (int i = 1; i <= options_count; i++) {
     string option_str = va_arg(ap, string);
     print_to_stream("%d: %s\n", i, option_str);
   }
   va_end(ap);
 
-  print_to_stream("Choose an option by entering its associated number "
+  print_to_stream("\nChoose an option by entering its associated number "
                   "(Enter 0 or another character to return): ");
   bool success = false;
   int option = read_integer(stdin, &success);
