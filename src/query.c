@@ -60,6 +60,23 @@ Album query_get_album(string id) {
   return album;
 }
 
+Page query_get_album_tracks(string id, size_t offset) {
+  string url = create_string("%s/albums/%s/tracks?limit=%u&offset=%u",
+                             BASE_URL, id, LIMIT, offset);
+  cJSON *cJSON_album_tracks = fetch(url, GET, NULL);
+  free(url);
+  if (cJSON_HasError(cJSON_album_tracks)) {
+    cJSON_Delete(cJSON_album_tracks);
+    return NULL;
+  }
+
+  Page album_tracks = cJSON_to_page(cJSON_album_tracks,
+                                    cJSON_to_simplified_track);
+  cJSON_Delete(cJSON_album_tracks);
+
+  return album_tracks;
+}
+
 Page query_get_user_saved_albums(size_t offset) {
   string url = create_string("%s/me/albums?limit=%u&offset=%u" BASE_URL,
                              LIMIT, offset);
@@ -83,7 +100,7 @@ void query_put_user_saved_albums(Album *albums) {
     extend_string(url, "%s%s%s", url, albums[i]->id, 
                   !IS_NULL(albums[i + 1]) ? "," : "");
   }
-  cJSON *cJSON_res = fetch(url, PUT, NULL);
+  cJSON *cJSON_res = fetch(url, PUT, "{}");
   free(url);
   if (!IS_NULL(cJSON_res)) cJSON_Delete(cJSON_res);
 }
@@ -212,16 +229,16 @@ Page query_get_playlist_tracks(string id, size_t offset) {
   return playlist_tracks;
 }
 
-void query_put_playlist_tracks(Playlist playlist, Track *tracks) {
+void query_post_playlist_tracks(Playlist playlist, Track *tracks) {
   if(IS_NULL(*tracks)) return;
-  string url = create_string("%s/playlists/%d/tracks?uris=", BASE_URL,
+  string url = create_string("%s/playlists/%s/tracks?uris=", BASE_URL, 
                              playlist->id);
   for (int i = 0; !IS_NULL(tracks[i]); i++) {
-    string uri = create_string("track", tracks[i]->id);
+    string uri = create_uri("track", tracks[i]->id);
     extend_string(url, "%s%s%s", url, uri, !IS_NULL(tracks[i + 1]) ? "," : "");
     free(uri);
   }
-  cJSON *cJSON_res = fetch(url, PUT, NULL);
+  cJSON *cJSON_res = fetch(url, POST, "{}");
   free(url);
 
   cJSON *cJSON_snapshot_id = 
@@ -379,14 +396,14 @@ Search query_get_albums(string album, string artist, string year,
 
 Search query_get_artists(string artist, string year, string genre, 
                          size_t offset) {
-  string url = create_string("%s/search?q=%s", artist);
+  string url = create_string("%s/search?q=%s", BASE_URL, artist);
   if (!IS_NULL(year)) {
     extend_string(url, "%s%%20year:%s", url, year);
   }
   if (!IS_NULL(genre)) {
     extend_string(url, "%s%%20genre:%s", url, genre);
   }
-  extend_string(url, "%s&limit=%u&offset=%u&type=artist", BASE_URL, LIMIT,
+  extend_string(url, "%s&limit=%u&offset=%u&type=artist", url, LIMIT,
                 offset);
   cJSON *cJSON_search = fetch(url, GET, NULL);
   free(url);
@@ -486,7 +503,7 @@ void query_put_user_saved_tracks(Track *tracks) {
     extend_string(url, "%s%s%s", url, tracks[i]->id,
                   !IS_NULL(tracks[i + 1]) ? "," : "");
   }
-  cJSON *cJSON_res = fetch(url, PUT, NULL);
+  cJSON *cJSON_res = fetch(url, PUT, "{}");
 
   free(url);
   cJSON_Delete(cJSON_res);
@@ -553,7 +570,7 @@ Page query_get_user_top_tracks(size_t offset) {
 void query_put_follow_playlist(Playlist playlist) {
   string url = create_string("%s/playlists/%s/followers", BASE_URL, 
                              playlist->id);
-  cJSON *cJSON_res = fetch(url, PUT, NULL);
+  cJSON *cJSON_res = fetch(url, PUT, "{}");
 
   free(url);
   cJSON_Delete(cJSON_res);
@@ -592,7 +609,7 @@ void query_put_follow_artists(Artist *artists) {
     extend_string(url, "%s%s%s", url, artists[i]->id,
                   !IS_NULL(artists[i + 1]) ? "," : "");
   }
-  cJSON *cJSON_res = fetch(url, PUT, NULL);
+  cJSON *cJSON_res = fetch(url, PUT, "{}");
 
   free(url);
   cJSON_Delete(cJSON_res);

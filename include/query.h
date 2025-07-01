@@ -28,6 +28,14 @@
 Album query_get_album(string id);
 
 /*
+ * query_get_album_tracks:
+ * Queries the API for tracks of an album with an id of id,
+ * skipping the first offset elements.
+ * Returns the tracks as a page structure.
+ */
+Page query_get_album_tracks(string id, size_t offset);
+
+/*
  * query_get_user_saved_albums:
  * Queries the API for the albums saved by the user,
  * skipping the first offset elements.
@@ -105,7 +113,7 @@ Page query_get_playlist_tracks(string id, size_t offset);
  * query_put_playlist_tracks:
  * Queries the API to add tracks to playlist.
  */
-void query_put_playlist_tracks(Playlist playlist, Track *tracks);
+void query_post_playlist_tracks(Playlist playlist, Track *tracks);
 
 /*
  * query_delete_playlist_tracks:
