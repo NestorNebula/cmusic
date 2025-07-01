@@ -8,13 +8,12 @@
 #include "tprint.h"
 #include "readers.h"
 #include "ptrarray.h"
+#include "helpers.h"
 
 #define IS_NULL(ptr) (ptr == NULL)
 #define IS_EMPTY(str) (str[0] == '\0')
 
 extern string token;
-
-User user = NULL;
 
 /*
  * handle_user_connection:
