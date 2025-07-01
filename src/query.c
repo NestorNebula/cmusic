@@ -201,9 +201,9 @@ Playlist query_get_playlist(string id) {
 void query_put_playlist_details(Playlist playlist) {
   string url = create_string("%s/playlists/%s", BASE_URL, playlist->id);
   string body = create_string(
-"{ \
-  \"name\": \"%s\", \
-  \"description\": \"%s\" \
+"{\
+  \"name\": \"%s\",\
+  \"description\": \"%s\"\
  }", playlist->name, playlist->description);
   cJSON *cJSON_res = fetch(url, PUT, body);
 
@@ -257,19 +257,19 @@ void query_delete_playlist_tracks(Playlist playlist, Track *tracks) {
   string body = create_string("");
   for (int i = 0; !IS_NULL(tracks[i]); i++) {
     string uri = create_uri("track", tracks[i]->id);
-    extend_string(body, "%s \
- { \
-  \"uri\": %s, \
+    extend_string(body, "%s\
+ {\
+  \"uri\": \"%s\"\
  }%s", body, uri, !IS_NULL(tracks[i + 1]) ? "," : "");
     free(uri);
   }
 
   extend_string(body,
-"{ \
-  \"tracks\": [ \
-    %s \
-  ], \
-  \"snapshot_id\": %s \
+"{\
+  \"tracks\": [\
+    %s\
+  ],\
+  \"snapshot_id\": \"%s\"\
  }", body, playlist->snapshot_id);
   cJSON *cJSON_res = fetch(url, DELETE, body);
   free(url);
@@ -304,9 +304,9 @@ Page query_get_user_playlists(size_t offset) {
 Playlist query_post_playlist(User user, Playlist playlist) {
   string url = create_string("%s/users/%s/playlists", BASE_URL, user->id);
   string body = create_string(
-"{ \
-  \"name\": \"%s\", \
-  \"description\": \"%s\" \
+"{\
+  \"name\": \"%s\",\
+  \"description\": \"%s\"\
  }", playlist->name, playlist->description);
   cJSON *cJSON_playlist = fetch(url, POST, body);
   free(url);
