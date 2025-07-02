@@ -50,6 +50,13 @@ void handle_user_playlists(void);
  */
 void handle_followed(void);
 
+/*
+ * handle_favorites:
+ * Display the user's favorites artists and/or tracks and offers
+ * the possibility to learn more about them.
+ */
+void handle_favorites(Artist *favorite_artists, Track *favorite_tracks);
+
 int main(int argc, char **argv) {
   print_stream = stdout;
 
@@ -66,10 +73,15 @@ int main(int argc, char **argv) {
   update_playlists();
   update_followed_artists();
 
+  Page favorite_artists_page = query_get_user_top_artists(0);
+  Page favorite_tracks_page = query_get_user_top_tracks(0);
+
   for (;;) {
-    int option = handle_option_choice(3, "Search in catalog", 
+    int option = handle_option_choice(4, "Search in catalog", 
                                       "Manage Playlists",
-                                      "Manage followed Artists/Playlists");
+                                      "Manage followed Artists/Playlists",
+                                      "Learn about your favorite "
+                                      "artists/tracks");
 
     int owned_playlists_count = 0;
     while (!IS_NULL(owned_playlists[owned_playlists_count]))
@@ -84,9 +96,16 @@ int main(int argc, char **argv) {
       }
     } else if (option == 2) {
       handle_followed();
+    } else if (option == 3) {
+      handle_favorites((Artist *) favorite_artists_page->items, 
+                       (Track *) favorite_tracks_page->items);
     } else break;
   }
     
+  free_array(favorite_artists_page->items, free_artist);
+  tfree(free_page, favorite_artists_page);
+  free_array(favorite_tracks_page->items, free_track);
+  tfree(free_page, favorite_tracks_page);
   tfree(free_user, user);
 }
 
@@ -458,6 +477,39 @@ void handle_followed(void) {
           tfree(free_playlist, playlist);
         }
       } else print_to_stream("\nNo followed playlist\n");
+    } else break;
+  }
+}
+
+void handle_favorites(Artist *favorite_artists, Track *favorite_tracks) {
+  int artists_count = 0;
+  while (!IS_NULL(favorite_artists[artists_count])) artists_count++;
+  int tracks_count = 0;
+  while (!IS_NULL(favorite_tracks[tracks_count])) tracks_count++;
+  for (;;) {
+    int option = handle_option_choice(2, "Learn more about one of your "
+                                      "favorite artists",
+                                      "Learn more about one of your "
+                                      "favorite tracks");
+
+    if (option == 0) {
+      print_array(favorite_artists, print_artist_essentials);
+      print_to_stream("Enter artist's number: ");
+      bool success = false;
+      int choice = read_integer(stdin, &success);
+
+      if (success && choice >= 1 && choice <= artists_count) {
+        handle_artist(favorite_artists[choice - 1]);
+      }
+    } else if (option == 1) {
+      print_array(favorite_tracks, print_track_essentials);
+      print_to_stream("Enter tracks's number: ");
+      bool success = false;
+      int choice = read_integer(stdin, &success);
+
+      if (success && choice >= 1 && choice <= tracks_count) {
+        handle_track(favorite_tracks[choice - 1]);
+      }
     } else break;
   }
 }
