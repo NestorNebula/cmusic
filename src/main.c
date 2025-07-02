@@ -127,7 +127,10 @@ void search(void) {
     if (option == 0) {
       print_to_stream("Enter album's name: ");
       string name = read_string(stdin);
-      if (IS_EMPTY(name)) return;
+      if (IS_EMPTY(name)) {
+        free(name);
+        continue;
+      }
       print_to_stream("Enter album's artist (optional): ");
       string artist = read_string(stdin);
       print_to_stream("Enter album's year (optional, "
@@ -149,6 +152,11 @@ void search(void) {
         is_last_page = albums_page->limit + offset >= albums_page->total;
         SimplifiedAlbum *albums = albums_page->items;
 
+        if (IS_NULL(albums[0])) {
+          print_to_stream("\nNo album found\n");
+          tfree(free_search, search);
+          break;
+        }
         print_array(albums, print_simplified_album_essentials);
         print_to_stream("Enter album's number%s ",
                         is_last_page
@@ -180,7 +188,10 @@ void search(void) {
     } else if (option == 1) {
       print_to_stream("Enter artist's name: ");
       string name = read_string(stdin);
-      if (IS_EMPTY(name)) return;
+      if (IS_EMPTY(name)) {
+        free(name);
+        continue;
+      }
       print_to_stream("Enter artist's active year (optional, "
                       "format: yyyy OR yyyy-yyyy): ");
       string year = read_string(stdin);
@@ -196,6 +207,12 @@ void search(void) {
         Page artists_page = search->artists;
         is_last_page = artists_page->limit + offset >= artists_page->total;
         Artist *artists = artists_page->items;
+
+        if (IS_NULL(artists[0])) {
+          print_to_stream("\nNo artist found\n");
+          tfree(free_search, search);
+          break;
+        }
 
         print_array(artists, print_artist_essentials);
         print_to_stream("Enter artist's number%s ",
@@ -226,7 +243,10 @@ void search(void) {
     } else if (option == 2) {
       print_to_stream("Enter playlist's name: ");
       string name = read_string(stdin);
-      if (IS_EMPTY(name)) return;
+      if (IS_EMPTY(name)) {
+        free(name);
+        continue;
+      }
 
       size_t offset = 0;
       bool is_last_page = false;
@@ -235,6 +255,12 @@ void search(void) {
         Page playlists_page = search->playlists;
         is_last_page = playlists_page->limit + offset >= playlists_page->total;
         SimplifiedPlaylist *playlists = playlists_page->items;
+
+        if (IS_NULL(playlists[0])) {
+          print_to_stream("\nNo playlist found\n");
+          tfree(free_search, search);
+          break;
+        }
 
         print_array(playlists, print_simplified_playlist_essentials);
         print_to_stream("Enter playlist's number%s ",
@@ -265,7 +291,10 @@ void search(void) {
     } else if (option == 3) {
       print_to_stream("Enter track's name: ");
       string name = read_string(stdin);
-      if (IS_EMPTY(name)) return;
+      if (IS_EMPTY(name)) {
+        free(name);
+        continue;
+      }
       print_to_stream("Enter track's artist (optional): ");
       string artist = read_string(stdin);
       print_to_stream("Enter track's year (optional, format: "
@@ -286,6 +315,12 @@ void search(void) {
         Page tracks_page = search->tracks;
         is_last_page = tracks_page->limit + offset >= tracks_page->total;
         Track *tracks = tracks_page->items;
+
+        if (IS_NULL(tracks[0])) {
+          print_to_stream("\nNo track found\n");
+          tfree(free_search, search);
+          break;
+        }
 
         print_array(tracks, print_track_essentials);
         print_to_stream("Enter track's number%s ",
@@ -381,7 +416,9 @@ void handle_user_playlists(void) {
       }
       Track *tracks = (Track *) get_array(ptr_array);
 
-      if (option == 1) {
+      if (IS_NULL(tracks[0])) {
+        print_to_stream("\nNo track in playlist\n");
+      } else if (option == 1) {
         PtrArray tracks_to_delete_ptr_array = new_ptr_array();
         for (;;) {
           print_array(tracks, print_track_essentials);
@@ -404,7 +441,7 @@ void handle_user_playlists(void) {
               playlist, 
               (Track *) get_array(tracks_to_delete_ptr_array));
             update_playlists();
-            print_to_stream("\nTrack%s deleted\n", 
+            print_to_stream("\nTrack%s removed\n", 
                             tracks_to_delete_count > 1
                               ? "s"
                               : "");
@@ -495,23 +532,27 @@ void handle_favorites(Artist *favorite_artists, Track *favorite_tracks) {
                                       "favorite tracks");
 
     if (option == 0) {
-      print_array(favorite_artists, print_artist_essentials);
-      print_to_stream("Enter artist's number: ");
-      bool success = false;
-      int choice = read_integer(stdin, &success);
+      if (artists_count) {
+        print_array(favorite_artists, print_artist_essentials);
+        print_to_stream("Enter artist's number: ");
+        bool success = false;
+        int choice = read_integer(stdin, &success);
 
-      if (success && choice >= 1 && choice <= artists_count) {
-        handle_artist(favorite_artists[choice - 1]);
-      }
+        if (success && choice >= 1 && choice <= artists_count) {
+          handle_artist(favorite_artists[choice - 1]);
+        }
+      } else print_to_stream("\nNo favorite artist\n");
     } else if (option == 1) {
-      print_array(favorite_tracks, print_track_essentials);
-      print_to_stream("Enter tracks's number: ");
-      bool success = false;
-      int choice = read_integer(stdin, &success);
+      if (tracks_count) {
+        print_array(favorite_tracks, print_track_essentials);
+        print_to_stream("Enter tracks's number: ");
+        bool success = false;
+        int choice = read_integer(stdin, &success);
 
-      if (success && choice >= 1 && choice <= tracks_count) {
-        handle_track(favorite_tracks[choice - 1]);
-      }
+        if (success && choice >= 1 && choice <= tracks_count) {
+          handle_track(favorite_tracks[choice - 1]);
+        }
+      } else print_to_stream("\nNo favorite track\n");
     } else break;
   }
 }

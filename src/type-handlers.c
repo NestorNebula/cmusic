@@ -191,6 +191,11 @@ void handle_playlist(Playlist playlist) {
       Track *tracks = (Track *) get_array(ptr_array);
       print_array(tracks, print_track_essentials);
       free_ptr_array(ptr_array, false, NULL);
+      if (IS_NULL(tracks[0])) {
+        print_to_stream("\nNo track in playlist\n");
+        tfree(free_page, page);
+        break;
+      }
       print_to_stream("Enter track's number%s ",
                       is_last_page 
                         ? ":" 
